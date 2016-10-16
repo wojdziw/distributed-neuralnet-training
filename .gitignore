@@ -1,0 +1,7 @@
+Code/simple-deep-working
+Code/deeplearning-cats-dogs-tutorial
+Code/simple-deep/input/*
+*.caffemodel
+*.solverstate
+*.log
+Code/simple-deep/models/submission_model_1.csv
