@@ -54,7 +54,7 @@ mean_array = np.asarray(mean_blob.data, dtype=np.float32).reshape(
 
 #Read model architecture and trained model's weights
 net = caffe.Net('../models/net-deploy.prototxt',
-                '../models/model-iter-20.caffemodel',
+                '../models/model_iter_20.caffemodel',
                 caffe.TEST)
 
 #Define image transformers
