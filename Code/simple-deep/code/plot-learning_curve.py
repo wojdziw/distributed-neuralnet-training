@@ -21,7 +21,7 @@ import matplotlib.pylab as plt
 plt.style.use('ggplot')
 
 
-caffe_path = '/home/wojtek/caffe'
+caffe_path = os.environ['CAFFE_ROOT']
 model_log_path = sys.argv[1]
 learning_curve_path = sys.argv[2]
 

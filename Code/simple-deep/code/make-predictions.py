@@ -1,3 +1,4 @@
+
 '''
 Title           :make_predictions_1.py
 Description     :This script makes predictions using the 1st trained model and generates a submission file.
@@ -52,8 +53,8 @@ mean_array = np.asarray(mean_blob.data, dtype=np.float32).reshape(
 
 
 #Read model architecture and trained model's weights
-net = caffe.Net('../models/caffenet_deploy_1.prototxt',
-                '../models/caffe_model_1_iter_20.caffemodel',
+net = caffe.Net('../models/net-deploy.prototxt',
+                '../models/model-iter-20.caffemodel',
                 caffe.TEST)
 
 #Define image transformers
@@ -88,7 +89,7 @@ for img_path in test_img_paths:
 '''
 Making submission file
 '''
-with open("../models/submission_model_1.csv","w") as f:
+with open("../models/submission-model.csv","w") as f:
     f.write("id,label\n")
     for i in range(len(test_ids)):
         f.write(str(test_ids[i])+","+str(preds[i])+"\n")
