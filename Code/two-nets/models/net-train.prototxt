@@ -103,7 +103,7 @@ layer {
 layer {
   name: "conv2"
   type: "Convolution"
-  bottom: "data"
+  bottom: "norm1"
   top: "conv2"
   param {
     lr_mult: 1
@@ -161,7 +161,7 @@ layer {
 layer {
   name: "conv3"
   type: "Convolution"
-  bottom: "data"
+  bottom: "norm2"
   top: "conv3"
   param {
     lr_mult: 1
