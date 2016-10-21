@@ -18,25 +18,6 @@ layer {
     backend: LMDB
   }
 }
-layer {
-  name: "data"
-  type: "Data"
-  top: "data"
-  include {
-    phase: TEST
-  }
-  transform_param {
-    mirror: false
-    crop_size: 227
-    mean_file: "../input/mean.binaryproto"
-  }
-
-  data_param {
-    source: "../input/validation_lmdb"
-    batch_size: 50
-    backend: LMDB
-  }
-}
 
 
 layer {
