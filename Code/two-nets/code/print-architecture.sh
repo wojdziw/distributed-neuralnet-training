@@ -1,1 +1,1 @@
-python $CAFFE_ROOT/python/draw_net.py ../models/net_train.prototxt ../models/caffe_model_1.png
+python $CAFFE_ROOT/python/draw_net.py ../models/net-train.prototxt ../models/model.png
