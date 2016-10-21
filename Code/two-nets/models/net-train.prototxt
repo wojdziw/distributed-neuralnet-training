@@ -3,7 +3,6 @@ layer {
   name: "data"
   type: "Data"
   top: "data"
-  top: "label"
   include {
     phase: TRAIN
   }
@@ -237,12 +236,4 @@ layer {
       value: 0
     }
   }
-}
-
-layer {
-  name: "loss"
-  type: "SoftmaxWithLoss"
-  bottom: "fc8"
-  bottom: "label"
-  top: "loss"
 }
