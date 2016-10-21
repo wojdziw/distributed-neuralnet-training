@@ -85,17 +85,6 @@ layer {
     stride: 2
   }
 }
-layer {
-  name: "norm1"
-  type: "LRN"
-  bottom: "pool1"
-  top: "norm1"
-  lrn_param {
-    local_size: 5
-    alpha: 0.0001
-    beta: 0.75
-  }
-}
 
 
 
@@ -103,7 +92,7 @@ layer {
 layer {
   name: "conv2"
   type: "Convolution"
-  bottom: "norm1"
+  bottom: "pool1"
   top: "conv2"
   param {
     lr_mult: 1
@@ -144,24 +133,13 @@ layer {
     stride: 2
   }
 }
-layer {
-  name: "norm2"
-  type: "LRN"
-  bottom: "pool2"
-  top: "norm2"
-  lrn_param {
-    local_size: 5
-    alpha: 0.0001
-    beta: 0.75
-  }
-}
 
 
 
 layer {
   name: "conv3"
   type: "Convolution"
-  bottom: "norm2"
+  bottom: "pool2"
   top: "conv3"
   param {
     lr_mult: 1
@@ -202,17 +180,6 @@ layer {
     stride: 2
   }
 }
-layer {
-  name: "norm3"
-  type: "LRN"
-  bottom: "pool3"
-  top: "norm3"
-  lrn_param {
-    local_size: 5
-    alpha: 0.0001
-    beta: 0.75
-  }
-}
 
 
 
@@ -225,7 +192,7 @@ layer {
 layer {
   name: "fc7"
   type: "InnerProduct"
-  bottom: "norm3"
+  bottom: "pool3"
   top: "fc7"
   param {
     lr_mult: 1
