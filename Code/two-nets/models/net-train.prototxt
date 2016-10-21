@@ -4,7 +4,7 @@ layer {
   type: "Data"
   top: "data"
   include {
-    phase: TRAIN, TEST
+    phase: TRAIN
   }
   transform_param {
     mirror: true
