@@ -21,10 +21,11 @@ from caffe.proto import caffe_pb2
 import lmdb
 
 #Size of images
-IMAGE_WIDTH = 227
-IMAGE_HEIGHT = 227
+image_width = 227
+image_height = 227
+create_lmdb("../input/train/*jpg","../input/train_lmdb", image_width, image_height)
 
-def transform_img(img, img_width=IMAGE_WIDTH, img_height=IMAGE_HEIGHT):
+def transform_img(img, img_width, img_height):
 
     #Histogram Equalization
     img[:, :, 0] = cv2.equalizeHist(img[:, :, 0])
@@ -41,12 +42,12 @@ def make_datum(img, label):
     #image is numpy.ndarray format. BGR instead of RGB
     return caffe_pb2.Datum(
         channels=3,
-        width=IMAGE_WIDTH,
-        height=IMAGE_HEIGHT,
+        width=image_width,
+        height=image_height,
         label=label,
         data=np.rollaxis(img, 2).tostring())
 
-def create_lmdb(input_path, output_path):
+def create_lmdb(input_path, output_path, image_width, image_height):
 
     os.system('rm -rf  ' + output_path)
 
@@ -61,7 +62,7 @@ def create_lmdb(input_path, output_path):
             if in_idx %  6 == 0:
                 continue
             img = cv2.imread(img_path, cv2.IMREAD_COLOR)
-            img = transform_img(img, img_width=IMAGE_WIDTH, img_height=IMAGE_HEIGHT)
+            img = transform_img(img, img_width=image_width, img_height=image_height)
             if 'cat' in img_path:
                 label = 0
             else:
