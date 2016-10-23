@@ -15,9 +15,6 @@ import caffe
 from caffe.proto import caffe_pb2
 import lmdb
 
-#Size of images
-IMAGE_WIDTH = 227
-IMAGE_HEIGHT = 227
 
 def createLMDB(images, labels, outputDirectory):
     
@@ -30,7 +27,6 @@ def createLMDB(images, labels, outputDirectory):
         for in_idx, img in enumerate(images):
             if in_idx %  6 == 0:
                 continue
-            img = transform_img(img, img_width=IMAGE_WIDTH, img_height=IMAGE_HEIGHT)
             label = labels[in_idx]
             datum = make_datum(img, label)
             in_txn.put('{:0>5d}'.format(in_idx), datum.SerializeToString())

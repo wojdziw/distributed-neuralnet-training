@@ -10,16 +10,18 @@ from genericCreateLMDB import *
 train_data = [img for img in glob.glob("../input/train/*jpg")]
 random.shuffle(train_data)
 
+#Size of images
+IMAGE_WIDTH = 227
+IMAGE_HEIGHT = 227
+
 noImages = len(train_data)
 
-image0 = cv2.imread(train_data[0], cv2.IMREAD_COLOR)
-imageShape = image0.shape
-
-images = np.zeros([noImages, imageShape[0],imageShape[1], imageShape[2]])
+images = np.zeros([noImages, IMAGE_HEIGHT, IMAGE_WIDTH, 3])
 labels = np.zeros(noImages)
 
 for i, dir in enumerate(train_data):
 	image = cv2.imread(train_data[i], cv2.IMREAD_COLOR)
+	image = transform_img(image, img_width=IMAGE_WIDTH, img_height=IMAGE_HEIGHT)
 	print image.shape
 	images[i] = image
 	print images.shape
