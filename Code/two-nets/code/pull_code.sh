@@ -1,3 +1,3 @@
-cd ~/Final-Year-Project
+cd ../../../
 git pull
-cd $twonets/code
+cd -

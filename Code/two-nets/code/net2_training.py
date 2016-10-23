@@ -23,8 +23,8 @@ for net2_iteration in range(maxIter):
 	dataConv5 = solver.net.blobs['conv5'].data
 	dataPool5 = solver.net.blobs['pool5'].data
 	dataConv6 = solver.net.blobs['conv6'].data
-    dataPool6 = solver.net.blobs['pool6'].data 
-	
+    dataPool6 = solver.net.blobs['pool6'].data
+    
 	# parameters computed by each of the layers
 	paramsConv1 = solver.net.params['conv4'][0].data
 	paramsConv2 = solver.net.params['conv5'][0].data
