@@ -26,11 +26,11 @@ def createLMDB(images, labels, outputDirectory):
     with in_db.begin(write=True) as in_txn:
     	for in_idx, img in enumerate(images):
     	    if in_idx %  6 == 0:
-                    continue
+                continue
     	    
-                label = int(labels[in_idx])
-                datum = make_datum(img, label)
-                in_txn.put('{:0>5d}'.format(in_idx), datum.SerializeToString())
+            label = int(labels[in_idx])
+            datum = make_datum(img, label)
+            in_txn.put('{:0>5d}'.format(in_idx), datum.SerializeToString())
     	    print in_idx
     	print "Finished processing images, now other stuff..."
 
