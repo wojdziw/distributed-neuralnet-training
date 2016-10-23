@@ -4,7 +4,7 @@ import random
 import numpy as np
 import cv2
 
-from createLmdb import *
+from create_lmdb import *
 
 create_lmdb("../input/train/*jpg","../input/train_lmdb")
 
