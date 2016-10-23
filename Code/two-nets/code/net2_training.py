@@ -1,18 +1,21 @@
 import caffe
+import os
+import numpy as np
 
 solver = caffe.get_solver('../models/net2_solver.prototxt')
 
-maxIter = 1
+maxIter = 3
 stepPerIter = 1
 
-net1_iteraion = -1
+net1_iteration = -1
 
 for net2_iteration in range(maxIter):
+	print "Starting iteration " + str(net2_iteration)
+	while(net1_iteration != net2_iteration):
+		if os.path.exists("net1_iteration.npy"):
+			net1_iteration = int(np.load("net1_iteration.npy"))
 
-	while(net1_iteration != net2iteration):
-		net2_iteration = np.load("net1_iteration.npy")
-
-	np.load("parameters.npy")
+	# np.load("parameters.npy")
 
 	solver.step(1)
 
@@ -23,7 +26,7 @@ for net2_iteration in range(maxIter):
 	dataConv5 = solver.net.blobs['conv5'].data
 	dataPool5 = solver.net.blobs['pool5'].data
 	dataConv6 = solver.net.blobs['conv6'].data
-    dataPool6 = solver.net.blobs['pool6'].data
+        dataPool6 = solver.net.blobs['pool6'].data
     
 	# parameters computed by each of the layers
 	paramsConv1 = solver.net.params['conv4'][0].data
@@ -38,4 +41,4 @@ for net2_iteration in range(maxIter):
 	# after the other net is forward and back propped:
 	# RUN ADMM
 
-	np.save('net2_iteration', net2iteration)
+	np.save('net2_iteration', net2_iteration)
