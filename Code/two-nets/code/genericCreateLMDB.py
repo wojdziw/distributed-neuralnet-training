@@ -32,8 +32,9 @@ def createLMDB(images, labels, outputDirectory):
             datum = make_datum(img, label)
             in_txn.put('{:0>5d}'.format(in_idx), datum.SerializeToString())
 	    print in_idx
+	print "Finished processing images, now other stuff..."
 
-    print "nearly finished"
+    print "Nearly finished"
     in_db.close()
 
     print '\nFinished processing all images'
