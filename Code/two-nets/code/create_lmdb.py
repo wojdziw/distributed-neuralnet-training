@@ -20,11 +20,6 @@ import caffe
 from caffe.proto import caffe_pb2
 import lmdb
 
-#Size of images
-image_width = 227
-image_height = 227
-create_lmdb("../input/train/*jpg","../input/train_lmdb", image_width, image_height)
-
 def transform_img(img, img_width, img_height):
 
     #Histogram Equalization
@@ -75,3 +70,8 @@ def create_lmdb(input_path, output_path, image_width, image_height):
     print '\nFinished processing all images'
 
     return 0
+
+#Size of images
+image_width = 227
+image_height = 227
+create_lmdb("../input/train/*jpg","../input/train_lmdb", image_width, image_height)
