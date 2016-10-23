@@ -19,7 +19,7 @@ import lmdb
 IMAGE_WIDTH = 227
 IMAGE_HEIGHT = 227
 
-def createLMDB(images, labels, outputDirectory)
+def createLMDB(images, labels, outputDirectory):
     
     os.system('rm -rf  ' + outputDirectory)
 

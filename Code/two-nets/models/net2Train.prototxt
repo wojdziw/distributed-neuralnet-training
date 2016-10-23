@@ -1,8 +1,8 @@
 name: "CaffeNet"
 layer {
-  name: "data"
+  name: "data2"
   type: "Data"
-  top: "data"
+  top: "data2"
   include {
     phase: TRAIN
   }
@@ -19,9 +19,9 @@ layer {
   }
 }
 layer {
-  name: "data"
+  name: "data2"
   type: "Data"
-  top: "data"
+  top: "data2"
   include {
     phase: TEST
   }
@@ -40,10 +40,10 @@ layer {
 
 
 layer {
-  name: "conv1"
+  name: "conv4"
   type: "Convolution"
-  bottom: "data"
-  top: "conv1"
+  bottom: "data2"
+  top: "conv4"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -67,16 +67,16 @@ layer {
   }
 }
 layer {
-  name: "relu1"
+  name: "relu4"
   type: "ReLU"
-  bottom: "conv1"
-  top: "conv1"
+  bottom: "conv4"
+  top: "conv4"
 }
 layer {
-  name: "pool1"
+  name: "pool4"
   type: "Pooling"
-  bottom: "conv1"
-  top: "pool1"
+  bottom: "conv4"
+  top: "pool4"
   pooling_param {
     pool: MAX
     kernel_size: 3
@@ -86,10 +86,10 @@ layer {
 
 
 layer {
-  name: "conv2"
+  name: "conv5"
   type: "Convolution"
-  bottom: "pool1"
-  top: "conv2"
+  bottom: "pool4"
+  top: "conv5"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -114,16 +114,16 @@ layer {
   }
 }
 layer {
-  name: "relu2"
+  name: "relu5"
   type: "ReLU"
-  bottom: "conv2"
-  top: "conv2"
+  bottom: "conv5"
+  top: "conv5"
 }
 layer {
-  name: "pool2"
+  name: "pool5"
   type: "Pooling"
-  bottom: "conv2"
-  top: "pool2"
+  bottom: "conv5"
+  top: "pool5"
   pooling_param {
     pool: MAX
     kernel_size: 3
@@ -133,10 +133,10 @@ layer {
 
 
 layer {
-  name: "conv3"
+  name: "conv6"
   type: "Convolution"
-  bottom: "pool2"
-  top: "conv3"
+  bottom: "pool5"
+  top: "conv6"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -161,16 +161,16 @@ layer {
   }
 }
 layer {
-  name: "relu3"
+  name: "relu6"
   type: "ReLU"
-  bottom: "conv3"
-  top: "conv3"
+  bottom: "conv6"
+  top: "conv6"
 }
 layer {
-  name: "pool3"
+  name: "pool6"
   type: "Pooling"
-  bottom: "conv3"
-  top: "pool3"
+  bottom: "conv6"
+  top: "pool6"
   pooling_param {
     pool: MAX
     kernel_size: 3
@@ -189,7 +189,7 @@ layer {
 layer {
   name: "fc7"
   type: "InnerProduct"
-  bottom: "pool3"
+  bottom: "pool6"
   top: "fc7"
   param {
     lr_mult: 1

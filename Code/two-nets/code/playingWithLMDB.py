@@ -20,11 +20,13 @@ labels = np.zeros(noImages)
 
 for i, dir in enumerate(train_data):
 	image = cv2.imread(train_data[i], cv2.IMREAD_COLOR)
+	print image.shape
 	images[i] = image
+	print images.shape
 
 	if 'cat' in train_data[i]:
             labels[i] = 0
         else:
-            label[i] = 1
+            labels[i] = 1
 
 createLMDB(images, labels, '../input/train_lmdb')
