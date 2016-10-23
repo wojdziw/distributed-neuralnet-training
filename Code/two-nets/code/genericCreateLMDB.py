@@ -24,13 +24,16 @@ def createLMDB(images, labels, outputDirectory):
 
     in_db = lmdb.open(outputDirectory, map_size=int(1e12))
     with in_db.begin(write=True) as in_txn:
-        for in_idx, img in enumerate(images):
-            if in_idx %  6 == 0:
+	for in_idx, img in enumerate(images):
+	    if in_idx %  6 == 0:
                 continue
-            label = labels[in_idx]
+	    
+            label = int(labels[in_idx])
             datum = make_datum(img, label)
             in_txn.put('{:0>5d}'.format(in_idx), datum.SerializeToString())
-            print '{:0>5d}'.format(in_idx) + ':' + img_path
+	    print in_idx
+
+    print "nearly finished"
     in_db.close()
 
     print '\nFinished processing all images'
@@ -54,7 +57,7 @@ def make_datum(img, label):
     #image is numpy.ndarray format. BGR instead of RGB
     return caffe_pb2.Datum(
         channels=3,
-        width=IMAGE_WIDTH,
-        height=IMAGE_HEIGHT,
+        width=img.shape[1],
+        height=img.shape[0],
         label=label,
         data=np.rollaxis(img, 2).tostring())

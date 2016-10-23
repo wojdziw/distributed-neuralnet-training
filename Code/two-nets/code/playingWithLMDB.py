@@ -22,10 +22,8 @@ labels = np.zeros(noImages)
 for i, dir in enumerate(train_data):
 	image = cv2.imread(train_data[i], cv2.IMREAD_COLOR)
 	image = transform_img(image, img_width, img_height)
-	print image.shape
 	images[i] = image
-	print images.shape
-
+	
 	if 'cat' in train_data[i]:
             labels[i] = 0
         else:

@@ -9,7 +9,7 @@ for _ in range(maxIter):
 	solver.step(1)
 
 	# data computed by each of the layers
-	originalData = solver.net.blobs['data'].data
+	originalData = solver.net.blobs['data2'].data
 	dataConv1 = solver.net.blobs['conv1'].data
 	dataPool1 = solver.net.blobs['pool1'].data
 	dataConv2 = solver.net.blobs['conv2'].data
