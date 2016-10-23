@@ -37,7 +37,7 @@ def createLMDB(images, labels, outputDirectory):
 
     return 0
 
-def transform_img(img, img_width=IMAGE_WIDTH, img_height=IMAGE_HEIGHT):
+def transform_img(img, img_width, img_height):
 
     #Histogram Equalization
     img[:, :, 0] = cv2.equalizeHist(img[:, :, 0])
