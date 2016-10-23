@@ -5,12 +5,12 @@ solver = caffe.get_solver('../models/net2_solver.prototxt')
 maxIter = 1
 stepPerIter = 1
 
-net2iteraion = -1
+net1_iteraion = -1
 
-for net2iteration in range(maxIter):
+for net2_iteration in range(maxIter):
 
-	while(net1iteration != net2iteration):
-		net2iteration = np.load("net1iteration.npy")
+	while(net1_iteration != net2iteration):
+		net2_iteration = np.load("net1_iteration.npy")
 
 	np.load("parameters.npy")
 
@@ -38,4 +38,4 @@ for net2iteration in range(maxIter):
 	# after the other net is forward and back propped:
 	# RUN ADMM
 
-	np.save('net2iteration', net2iteration)
+	np.save('net2_iteration', net2iteration)

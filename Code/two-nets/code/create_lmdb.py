@@ -16,7 +16,7 @@ from caffe.proto import caffe_pb2
 import lmdb
 
 
-def createLMDB(images, labels, outputDirectory):
+def create_lmdb(images, labels, outputDirectory):
     
     os.system('rm -rf  ' + outputDirectory)
 
