@@ -10,7 +10,7 @@ stepPerIter = 1
 net1_iteration = -1
 
 for net2_iteration in range(maxIter):
-	print "Starting iteration " + str(net2_iteration)
+	print "Starting iteration " + str(net2_iteration + "and waiting for net1's parameters")
 	while(net1_iteration != net2_iteration):
 		if os.path.exists("net1_iteration.npy"):
 			net1_iteration = int(np.load("net1_iteration.npy"))
