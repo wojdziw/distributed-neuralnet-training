@@ -1,4 +1,4 @@
-net: "/home/wojciech/Final-Year-Project/Code/two-nets/models/net-train.prototxt"
+net: "/home/wojciech/Final-Year-Project/Code/two-nets/models/net2_train_def.prototxt"
 test_iter: 10
 test_interval: 10
 base_lr: 0.001
@@ -10,5 +10,5 @@ max_iter: 20
 momentum: 0.9	
 weight_decay: 0.0005
 snapshot: 5000
-snapshot_prefix: "/home/wojciech/Final-Year-Project/Code/two-nets/models/model"
+snapshot_prefix: "/home/wojciech/Final-Year-Project/Code/two-nets/models/net2"
 solver_mode: GPU

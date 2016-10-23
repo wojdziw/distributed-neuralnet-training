@@ -29,4 +29,5 @@ for i, dir in enumerate(train_data):
         else:
             labels[i] = 1
 
-createLMDB(images, labels, '../input/train_lmdb')
+createLMDB(images, labels, '../input/net2_train_lmdb')
+createLMDB(images, labels, '../input/net1_train_lmdb')
