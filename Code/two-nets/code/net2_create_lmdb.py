@@ -72,8 +72,8 @@ def create_lmdb(input_path, output_path, image_width, image_height, no_filters):
     return 0
 
 #Size of images
-image_width = 227
-image_height = 227
+image_width = 13
+image_height = 13
 no_filters = 96
 create_lmdb("../input/train/*jpg","../input/net2_train_lmdb", image_width, image_height, no_filters)
-# create_lmdb("../input/test1/*jpg","../input/net2_validation_lmdb", image_width, image_height, no_filters)
+create_lmdb("../input/test1/*jpg","../input/net2_validation_lmdb", image_width, image_height, no_filters)
