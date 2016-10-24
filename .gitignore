@@ -2,6 +2,7 @@ Code/simple-deep-working
 Code/deeplearning-cats-dogs-tutorial
 Code/simple-deep/input/*
 Code/two-nets/input/*
+Code/two-nets/comms/*
 *.caffemodel
 *.solverstate
 *.log
