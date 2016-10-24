@@ -58,7 +58,7 @@ def create_lmdb(input_path, output_path, image_width, image_height):
             if in_idx %  6 == 0:
                 continue
             img = cv2.imread(img_path, cv2.IMREAD_COLOR)
-            img = transform_img(img, img_width=image_width, img_height=image_height)
+            img = transform_img(img, image_width, image_height)
             if 'cat' in img_path:
                 label = 0
             else:

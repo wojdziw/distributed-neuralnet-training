@@ -42,7 +42,7 @@ def make_datum(img, label):
         label=label,
         data=np.rollaxis(img, 2).tostring())
 
-def create_lmdb(input_path, output_path, image_width, image_height):
+def create_lmdb(input_path, output_path, image_width, image_height, no_filters):
 
     os.system('rm -rf  ' + output_path)
 
@@ -57,8 +57,7 @@ def create_lmdb(input_path, output_path, image_width, image_height):
         for in_idx, img_path in enumerate(data):
             if in_idx %  6 == 0:
                 continue
-            img = cv2.imread(img_path, cv2.IMREAD_COLOR)
-            img = transform_img(img, img_width=image_width, img_height=image_height)
+            img = np.zeros([image_height, image_width, no_filters])
             if 'cat' in img_path:
                 label = 0
             else:
@@ -75,5 +74,6 @@ def create_lmdb(input_path, output_path, image_width, image_height):
 #Size of images
 image_width = 227
 image_height = 227
-create_lmdb("../input/train/*jpg","../input/net2_train_lmdb", image_width, image_height)
-# create_lmdb("../input/test1/*jpg","../input/net2_validation_lmdb", image_width, image_height)
+no_filters = 96
+create_lmdb("../input/train/*jpg","../input/net2_train_lmdb", image_width, image_height, no_filters)
+# create_lmdb("../input/test1/*jpg","../input/net2_validation_lmdb", image_width, image_height, no_filters)

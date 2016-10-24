@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 
 def generate_white_input(no_filters, image_size, file_names, output_path):
-	image = np.zeros([image_size[0], image_size[1], 3])
+	image = np.zeros([image_size[0], image_size[1], no_filters])
 
 	for file_name in file_names:
 		file_name = output_path+file_name.split("/")[3]
