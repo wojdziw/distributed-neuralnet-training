@@ -10,11 +10,14 @@ stepPerIter = 1
 net1_iteration = -1
 
 for net2_iteration in range(maxIter):
+
+	# We can only start an iteration once we have data ready from net1
 	print "Starting iteration " + str(net2_iteration + "and waiting for net1's parameters")
 	while(net1_iteration != net2_iteration):
 		if os.path.exists("net1_iteration.npy"):
 			net1_iteration = int(np.load("net1_iteration.npy"))
 
+	# Loading the parameters from net1
 	# np.load("parameters.npy")
 
 	solver.step(1)

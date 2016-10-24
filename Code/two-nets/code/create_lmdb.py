@@ -47,6 +47,7 @@ def create_lmdb(input_path, output_path, image_width, image_height):
     os.system('rm -rf  ' + output_path)
 
     data = [img for img in glob.glob(input_path)]
+    np.save('image_data', data)
 
     #Shuffle data
     random.shuffle(data)
