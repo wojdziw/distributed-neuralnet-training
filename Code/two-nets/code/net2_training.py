@@ -4,17 +4,16 @@ import numpy as np
 
 solver = caffe.get_solver('../models/net2_solver.prototxt')
 
-maxIter = 3
+maxIter = 1
 stepPerIter = 1
 
 net1_iteration = -1
 
 for net2_iteration in range(maxIter):
-
 	# We can only start an iteration once we have data ready from net1
-	print "Starting iteration " + str(net2_iteration + "and waiting for net1's parameters")
+	print "Starting iteration " + str(net2_iteration) + " and waiting for net1's parameters"
 	while(net1_iteration != net2_iteration):
-		if os.path.exists("net1_iteration.npy"):
+		if os.path.exists("../comms/net1_iteration.npy"):
 			net1_iteration = int(np.load("../comms/net1_iteration.npy"))
 
 	# Loading the parameters from net1
