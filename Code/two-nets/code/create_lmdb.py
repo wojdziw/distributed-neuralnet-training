@@ -47,7 +47,7 @@ def create_lmdb(input_path, output_path, image_width, image_height):
     os.system('rm -rf  ' + output_path)
 
     data = [img for img in glob.glob(input_path)]
-    np.save('image_data', data)
+    np.save('../comms/image_data', data)
 
     #Shuffle data
     random.shuffle(data)
@@ -76,4 +76,4 @@ def create_lmdb(input_path, output_path, image_width, image_height):
 image_width = 227
 image_height = 227
 create_lmdb("../input/train/*jpg","../input/net2_train_lmdb", image_width, image_height)
-create_lmdb("../input/test1/*jpg","../input/net2_validation_lmdb", image_width, image_height)
+# create_lmdb("../input/test1/*jpg","../input/net2_validation_lmdb", image_width, image_height)

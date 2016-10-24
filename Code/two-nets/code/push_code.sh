@@ -1,5 +1,5 @@
 cd ../../../
 git add --all
-git commit -m "changed code a little bit"
+git commit -m "$1"
 git push origin master
 cd -

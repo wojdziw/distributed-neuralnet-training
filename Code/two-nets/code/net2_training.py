@@ -15,7 +15,7 @@ for net2_iteration in range(maxIter):
 	print "Starting iteration " + str(net2_iteration + "and waiting for net1's parameters")
 	while(net1_iteration != net2_iteration):
 		if os.path.exists("net1_iteration.npy"):
-			net1_iteration = int(np.load("net1_iteration.npy"))
+			net1_iteration = int(np.load("../comms/net1_iteration.npy"))
 
 	# Loading the parameters from net1
 	# np.load("parameters.npy")
@@ -44,4 +44,4 @@ for net2_iteration in range(maxIter):
 	# after the other net is forward and back propped:
 	# RUN ADMM
 
-	np.save('net2_iteration', net2_iteration)
+	np.save('../comms/net2_iteration', net2_iteration)
