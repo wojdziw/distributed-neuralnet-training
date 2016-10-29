@@ -8,7 +8,7 @@ layer {
   }
   transform_param {
     mirror: true
-    crop_size: 227
+    crop_size: 200
     
   }
 
@@ -27,7 +27,7 @@ layer {
   }
   transform_param {
     mirror: false
-    crop_size: 227
+    crop_size: 200
     
   }
 
