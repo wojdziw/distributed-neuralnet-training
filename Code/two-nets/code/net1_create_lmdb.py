@@ -33,22 +33,21 @@ def transform_img(img, img_width, img_height):
     return img
 
 
-def make_datum(img, label):
+def make_datum(img, label, no_filters):
     #image is numpy.ndarray format. BGR instead of RGB
     return caffe_pb2.Datum(
-        channels=3,
+        channels=no_filters,
         width=image_width,
         height=image_height,
         label=label,
         data=np.rollaxis(img, 2).tostring())
 
-def create_lmdb(input_path, output_path, image_width, image_height):
+def create_lmdb(input_path, output_path, image_width, image_height, no_filters):
 
     os.system('rm -rf  ' + output_path)
 
     data = [img for img in glob.glob(input_path)]
-    np.save('../comms/image_data', data)
-
+    
     #Shuffle data
     random.shuffle(data)
 
@@ -57,13 +56,14 @@ def create_lmdb(input_path, output_path, image_width, image_height):
         for in_idx, img_path in enumerate(data):
             if in_idx %  6 == 0:
                 continue
-            img = cv2.imread(img_path, cv2.IMREAD_COLOR)
-            img = transform_img(img, image_width, image_height)
+            #img = np.ones([image_height, image_width, no_filters])
+	    img = cv2.imread(img_path, cv2.IMREAD_COLOR)
+	    img = transform_img(img, image_width, image_height)
             if 'cat' in img_path:
                 label = 0
             else:
                 label = 1
-            datum = make_datum(img, label)
+            datum = make_datum(img, label, no_filters)
             in_txn.put('{:0>5d}'.format(in_idx), datum.SerializeToString())
             print '{:0>5d}'.format(in_idx) + ':' + img_path
     in_db.close()
@@ -75,5 +75,6 @@ def create_lmdb(input_path, output_path, image_width, image_height):
 #Size of images
 image_width = 227
 image_height = 227
-create_lmdb("../input/train/*jpg","../input/net1_train_lmdb", image_width, image_height)
-create_lmdb("../input/test1/*jpg","../input/net1_validation_lmdb", image_width, image_height)
+no_filters = 3
+create_lmdb("../input/train/*jpg","../input/net1_train_lmdb", image_width, image_height, no_filters)
+create_lmdb("../input/test1/*jpg","../input/net1_validation_lmdb", image_width, image_height, no_filters)

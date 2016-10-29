@@ -33,10 +33,10 @@ def transform_img(img, img_width, img_height):
     return img
 
 
-def make_datum(img, label):
+def make_datum(img, label, no_filters):
     #image is numpy.ndarray format. BGR instead of RGB
     return caffe_pb2.Datum(
-        channels=3,
+        channels=no_filters,
         width=image_width,
         height=image_height,
         label=label,
@@ -64,7 +64,7 @@ def create_lmdb(input_path, output_path, image_width, image_height, no_filters):
                 label = 0
             else:
                 label = 1
-            datum = make_datum(img, label)
+            datum = make_datum(img, label, no_filters)
             in_txn.put('{:0>5d}'.format(in_idx), datum.SerializeToString())
             print '{:0>5d}'.format(in_idx) + ':' + img_path
     in_db.close()
@@ -74,8 +74,8 @@ def create_lmdb(input_path, output_path, image_width, image_height, no_filters):
     return 0
 
 #Size of images
-image_width = 176
-image_height = 176
-no_filters = 2
-create_lmdb("../input/train/*jpg","../input/net2_train_lmdb", image_width, image_height, no_filters)
-create_lmdb("../input/test1/*jpg","../input/net2_validation_lmdb", image_width, image_height, no_filters)
+image_width = 13
+image_height = 13
+no_filters = 96
+create_lmdb("../input/train/*jpg","../input/net2_train_lmdb_zeros", image_width, image_height, no_filters)
+create_lmdb("../input/test1/*jpg","../input/net2_validation_lmdb_zeros", image_width, image_height, no_filters)

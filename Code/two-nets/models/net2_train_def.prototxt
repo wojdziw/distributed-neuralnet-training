@@ -8,12 +8,12 @@ layer {
   }
   transform_param {
     mirror: true
-    crop_size: 200
+    crop_size: 13
     
   }
 
   data_param {
-    source: "../input/net2_train_lmdb"
+    source: "../input/net2_train_lmdb_zeros"
     batch_size: 20
     backend: LMDB
   }
@@ -27,12 +27,12 @@ layer {
   }
   transform_param {
     mirror: false
-    crop_size: 200
+    crop_size: 13	
     
   }
 
   data_param {
-    source: "../input/net2_validation_lmdb"
+    source: "../input/net2_validation_lmdb_zeros"
     batch_size: 50
     backend: LMDB
   }
@@ -40,10 +40,10 @@ layer {
 
 
 layer {
-  name: "conv4"
+  name: "conv3p"
   type: "Convolution"
   bottom: "data2"
-  top: "conv4"
+  top: "conv3p"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -67,29 +67,17 @@ layer {
   }
 }
 layer {
-  name: "relu4"
+  name: "relu3p"
   type: "ReLU"
-  bottom: "conv4"
-  top: "conv4"
-}
-layer {
-  name: "pool4"
-  type: "Pooling"
-  bottom: "conv4"
-  top: "pool4"
-  pooling_param {
-    pool: MAX
-    kernel_size: 3
-    stride: 2
-  }
+  bottom: "conv3p"
+  top: "conv3p"
 }
 
-
 layer {
-  name: "conv5"
+  name: "conv4"
   type: "Convolution"
-  bottom: "pool4"
-  top: "conv5"
+  bottom: "conv3p"
+  top: "conv4"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -116,80 +104,14 @@ layer {
 layer {
   name: "relu5"
   type: "ReLU"
-  bottom: "conv5"
-  top: "conv5"
+  bottom: "conv4"
+  top: "conv4"
 }
-layer {
-  name: "pool5"
-  type: "Pooling"
-  bottom: "conv5"
-  top: "pool5"
-  pooling_param {
-    pool: MAX
-    kernel_size: 3
-    stride: 2
-  }
-}
-
-
-layer {
-  name: "conv6"
-  type: "Convolution"
-  bottom: "pool5"
-  top: "conv6"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  convolution_param {
-    num_output: 96
-    pad: 1
-    kernel_size: 3
-    stride: 1
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
-  }
-}
-layer {
-  name: "relu6"
-  type: "ReLU"
-  bottom: "conv6"
-  top: "conv6"
-}
-layer {
-  name: "pool6"
-  type: "Pooling"
-  bottom: "conv6"
-  top: "pool6"
-  pooling_param {
-    pool: MAX
-    kernel_size: 3
-    stride: 2
-  }
-}
-
-
-
-
-
-
-
-
 
 layer {
   name: "fc7"
   type: "InnerProduct"
-  bottom: "pool6"
+  bottom: "conv4"
   top: "fc7"
   param {
     lr_mult: 1

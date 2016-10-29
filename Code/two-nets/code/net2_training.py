@@ -1,46 +1,58 @@
 import caffe
 import os
 import numpy as np
+import time
 
 solver = caffe.get_solver('../models/net2_solver.prototxt')
-
-maxIter = 1
+maxIter = 2
 stepPerIter = 1
 
 net1_iteration = -1
 
 for net2_iteration in range(maxIter):
+	
+	########## START OF AN ITERATION ##########
+
+	########## NET 1 FORWARD PASS START ##########
+
 	# We can only start an iteration once we have data ready from net1
 	print "Starting iteration " + str(net2_iteration) + " and waiting for net1's parameters"
 	while(net1_iteration != net2_iteration):
+		# tiny delay to prevent accessing an open file
+		time.sleep(1)	
 		if os.path.exists("../comms/net1_iteration.npy"):
 			net1_iteration = int(np.load("../comms/net1_iteration.npy"))
 
 	# Loading the parameters from net1
-	# np.load("parameters.npy")
+	data_pool2 = np.load("../comms/data_pool2.npy")
 
-	solver.step(1)
+	# copying the net1 parameters into data of net 2
+	for i in range(data_pool2.shape[0]):
+		solver.net.blobs['data2'].data[i] = data_pool2[i]
+
+	########## NET 1 FORWARD PASS FINISH ##########
+
+	########## NET 2 FORWARD AND BACKWARD PASS START ##########
+	
+	solver.step(1)	
 
 	# data computed by each of the layers
-	originalData = solver.net.blobs['data2'].data
-	dataConv4 = solver.net.blobs['conv4'].data
-	dataPool4 = solver.net.blobs['pool4'].data
-	dataConv5 = solver.net.blobs['conv5'].data
-	dataPool5 = solver.net.blobs['pool5'].data
-	dataConv6 = solver.net.blobs['conv6'].data
-        dataPool6 = solver.net.blobs['pool6'].data
-    
+	data_input = solver.net.blobs['data2'].data
+	data_conv3p = solver.net.blobs['conv3p'].data
+	data_conv4 = solver.net.blobs['conv4'].data
+
 	# parameters computed by each of the layers
-	paramsConv1 = solver.net.params['conv4'][0].data
-	paramsConv2 = solver.net.params['conv5'][0].data
-	paramsConv3 = solver.net.params['conv6'][0].data
+	params_conv3p = solver.net.params['conv3p'][0].data
+	params_conv4 = solver.net.params['conv4'][0].data
 	
 	# save the data produced by conv2 and give it to the other net
+	np.save("../comms/data_conv3p", data_conv3p)
 
-	# the new data gets communicated and processed by the other net
-	# what should be the target labels for this net beeeee	
-
-	# after the other net is forward and back propped:
-	# RUN ADMM
+	########## NET 2 FORWARD AND BACKWARD PASS FINISH ##########
+	
+	########## NET 1 BACKWARD PASS START  ##########
 
 	np.save('../comms/net2_iteration', net2_iteration)
+
+	########## NET 1 BACKWARD PASS FINISH ##########
+

@@ -1,4 +1,0 @@
-So yesterday I thought I generated an lmdb with the number of filters equal to five but now for some reason it's still 3
-Now wanna rerun it, maybe I did some mistake
-Gonna remove the net2_lmdb as well
-Gonna change the size of input to 200x200 just to check if it all propagates correctly
