@@ -99,7 +99,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 96
+    num_output: 256
     pad: 2
     kernel_size: 5
     stride: 1 
@@ -146,7 +146,7 @@ layer {
     decay_mult: 0
   }
   convolution_param {
-    num_output: 96
+    num_output: 384
     pad: 1
     kernel_size: 3
     stride: 1
@@ -166,3 +166,39 @@ layer {
   bottom: "conv3"
   top: "conv3"
 }
+
+layer {
+  name: "conv3p"
+  type: "Data"
+  top: "conv3p"
+  include {
+    phase: TRAIN
+  }
+  data_param {
+    source: "../input/net1_conv3_train_lmdb"
+    batch_size: 20
+    backend: LMDB
+  }
+}
+layer {
+  name: "conv3p"
+  type: "Data"
+  top: "conv3p"
+  include {
+    phase: TEST
+  }
+  data_param {
+    source: "../input/net1_conv3_validation_lmdb"
+    batch_size: 50
+    backend: LMDB
+  }
+}
+
+layer {
+  name: "loss"
+  type: "EuclideanLoss"
+  bottom: "conv3"
+  bottom: "conv3p"
+  top: "loss"
+}
+

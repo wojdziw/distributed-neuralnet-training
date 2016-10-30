@@ -2,7 +2,9 @@ import caffe
 import os
 import numpy as np
 import time
+from subprocess import call
 
+call(["rm", "../comms/*"])
 solver = caffe.get_solver('../models/net2_solver.prototxt')
 maxIter = 2
 stepPerIter = 1
