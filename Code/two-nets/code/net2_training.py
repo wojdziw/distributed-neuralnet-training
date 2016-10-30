@@ -2,39 +2,45 @@ import caffe
 import os
 import numpy as np
 import time
-from subprocess import call
 
-call(["rm", "../comms/*"])
 solver = caffe.get_solver('../models/net2_solver.prototxt')
-maxIter = 2
+maxIter = 50
 stepPerIter = 1
 
 net1_iteration = -1
+np.save('../comms/net1_iteration', net1_iteration)
+np.save('../comms/net2_iteration', -1)
 
 for net2_iteration in range(maxIter):
 	
-	########## START OF AN ITERATION ##########
+	print "########## START OF THE ITERATION " + str(net2_iteration) +  " ##########"
 
-	########## NET 1 FORWARD PASS START ##########
+	print "########## NET 1 FORWARD PASS START ##########"
 
 	# We can only start an iteration once we have data ready from net1
 	print "Starting iteration " + str(net2_iteration) + " and waiting for net1's parameters"
 	while(net1_iteration != net2_iteration):
 		# tiny delay to prevent accessing an open file
-		time.sleep(1)	
+		time.sleep(3)	
+		print "waiting..."
 		if os.path.exists("../comms/net1_iteration.npy"):
 			net1_iteration = int(np.load("../comms/net1_iteration.npy"))
 
 	# Loading the parameters from net1
 	data_pool2 = np.load("../comms/data_pool2.npy")
+	labels = np.load("../comms/net1_labels.npy")	
 
-	# copying the net1 parameters into data of net 2
+	# copying the net1 output into data of net 2
 	for i in range(data_pool2.shape[0]):
 		solver.net.blobs['data2'].data[i] = data_pool2[i]
 
-	########## NET 1 FORWARD PASS FINISH ##########
+	# copying the labels
+	for i in range(len(labels)):
+		solver.net.blobs['label'].data[i] = labels[i]
 
-	########## NET 2 FORWARD AND BACKWARD PASS START ##########
+	print "########## NET 1 FORWARD PASS FINISH ##########"
+
+	print "########## NET 2 FORWARD AND BACKWARD PASS START ##########"
 	
 	solver.step(1)	
 
@@ -50,11 +56,11 @@ for net2_iteration in range(maxIter):
 	# save the data produced by conv2 and give it to the other net
 	np.save("../comms/data_conv3p", data_conv3p)
 
-	########## NET 2 FORWARD AND BACKWARD PASS FINISH ##########
+	print "########## NET 2 FORWARD AND BACKWARD PASS FINISH ##########"
 	
-	########## NET 1 BACKWARD PASS START  ##########
+	print "########## NET 1 BACKWARD PASS START  ##########"
 
 	np.save('../comms/net2_iteration', net2_iteration)
 
-	########## NET 1 BACKWARD PASS FINISH ##########
+	print "########## NET 1 BACKWARD PASS FINISH ##########"
 

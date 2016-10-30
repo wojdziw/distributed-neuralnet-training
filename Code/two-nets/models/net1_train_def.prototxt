@@ -3,6 +3,7 @@ layer {
   name: "data"
   type: "Data"
   top: "data"
+  top: "label"
   include {
     phase: TRAIN
   }
@@ -22,6 +23,7 @@ layer {
   name: "data"
   type: "Data"
   top: "data"
+  top: "label"
   include {
     phase: TEST
   }
