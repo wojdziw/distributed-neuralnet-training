@@ -10,7 +10,7 @@ layer {
   
   data_param {
     source: "../input/net2_train_lmdb_zeros"
-    batch_size: 20
+    batch_size: 256
     backend: LMDB
   }
 }
@@ -183,6 +183,12 @@ layer {
   }
 }
 
+layer {
+  name: "pred"
+  type: "Softmax"
+  bottom: "fc6"
+  top: "pred"
+}
 
 layer {
   name: "loss"
@@ -190,4 +196,15 @@ layer {
   bottom: "fc6"
   bottom: "label"
   top: "loss"
+}
+
+layer {
+  name: "loll"
+  type: "HingeLoss"
+  bottom: "pred"
+  bottom: "label"
+  top: "loll"
+  hinge_loss_param {
+    norm: L2
+  }
 }

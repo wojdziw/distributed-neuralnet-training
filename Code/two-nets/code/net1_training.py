@@ -5,8 +5,11 @@ import time
 
 solver = caffe.get_solver('../models/net1_solver.prototxt')
 
-maxIter = 50 
+maxIter = 1 
 stepPerIter = 1
+learningRate = 0.00000001
+
+losses = np.zeros(maxIter)
 
 net2_iteration = -1
 
@@ -27,7 +30,7 @@ for net1_iteration in range(maxIter):
 	data_conv3 = solver.net.blobs['conv3'].data
 	data_conv3p = solver.net.blobs['conv3p'].data
 		
-	# save the output of the second convolutional layer (+pool) into a file
+	# save the output of the second convolutional layer (+pool) into a file	
 	np.save('../comms/data_pool2', data_pool2)
 	
 	# send net1 to net2 info to start its computation
@@ -42,14 +45,14 @@ for net1_iteration in range(maxIter):
 	
 	# check if net2 has finished its computation
 	while(net1_iteration != net2_iteration):
-		time.sleep(3)
+		time.sleep(10)
 		print "waiting..."	
 		if os.path.exists("../comms/net2_iteration.npy"):
 			net2_iteration = int(np.load("../comms/net2_iteration.npy"))
 		
 	print "########## NET 2 FORWARD AND BACKWARD PASS FINISH ##########"
 
-	print "########## NET 2 BACKWARD PASS START ##########"
+	print "########## NET 1 BACKWARD PASS START ##########"
  	
 	# load the data produced by the second net
 	net2_data = np.load("../comms/data_conv3p.npy")
@@ -58,11 +61,18 @@ for net1_iteration in range(maxIter):
 	for i in range(data_conv3p.shape[0]):
 		solver.net.blobs['conv3p'].data[i] = net2_data[i]
 	
+	# not sure how to only do backprop so that everything is updated properly but hope this works
 	solver.net.backward()
+	for layer in solver.net.layers:
+    		for blob in layer.blobs:
+        		blob.data[...] -= learningRate*blob.diff
+	
+	# get the value of the loss
+	losses[net1_iteration] = float(solver.net.blobs['loss'].data)
+	print "Loss is: " + str(float(solver.net.blobs['loss'].data))
 	
 	print "########## NET 2 BACKWARD PASS FINISH ##########"
 
 	print "########## END OF THE ITERATION ##########"
 	
-	
-
+np.save('../models/snapshots/net1_losses', losses)

@@ -1,0 +1,1 @@
+scp fyp:~/Final-Year-Project/Code/two-nets/code/model.png .
