@@ -5,7 +5,7 @@ import time
 
 solver = caffe.get_solver('../models/net1_solver.prototxt')
 
-maxIter = 1 
+maxIter = 1000 
 stepPerIter = 1
 learningRate = 0.00000001
 
@@ -15,9 +15,9 @@ net2_iteration = -1
 
 for net1_iteration in range(maxIter):
 	
-	print "########## START OF THE ITERATION " + str(net1_iteration) + " ##########"	
-
-	print "########## NET 1 FORWARD PASS START ##########"
+	print "###############################"
+	print "Iteration " + str(net1_iteration) + ": starting..."
+	print "Iteration " + str(net1_iteration) + ": net1 forward pass start"
 	
 	solver.net.forward()
 
@@ -29,6 +29,10 @@ for net1_iteration in range(maxIter):
 	data_pool2 = solver.net.blobs['pool2'].data
 	data_conv3 = solver.net.blobs['conv3'].data
 	data_conv3p = solver.net.blobs['conv3p'].data
+	
+	# generate some lol data to see if net2 is converging
+	lol_data = np.zeros(data_pool2.shape, dtype=np.float32)
+	lol_labels = np.ones(labels.shape, dtype=np.float32)
 		
 	# save the output of the second convolutional layer (+pool) into a file	
 	np.save('../comms/data_pool2', data_pool2)
@@ -39,9 +43,11 @@ for net1_iteration in range(maxIter):
 	# send net1 labels to net2 to align the information
 	np.save('../comms/net1_labels', labels)
 
-	print "########## NET 1 FORWARD FINISH ##########"
+
+
+	print "Iteration " + str(net1_iteration) + ": net1 forward pass finish"
 		
-	print "######### NET 2 FORWARD AND BACKWARD PASS START ##########"
+	print "Iteration " + str(net1_iteration) + ": net2 forward and back pass start"
 	
 	# check if net2 has finished its computation
 	while(net1_iteration != net2_iteration):
@@ -50,9 +56,10 @@ for net1_iteration in range(maxIter):
 		if os.path.exists("../comms/net2_iteration.npy"):
 			net2_iteration = int(np.load("../comms/net2_iteration.npy"))
 		
-	print "########## NET 2 FORWARD AND BACKWARD PASS FINISH ##########"
+	print "Iteration " + str(net1_iteration) + ": net2 forward and back pass finish"
 
-	print "########## NET 1 BACKWARD PASS START ##########"
+	print "Iteration " + str(net1_iteration) + ": net1 back pass start"
+
  	
 	# load the data produced by the second net
 	net2_data = np.load("../comms/data_conv3p.npy")
@@ -66,13 +73,14 @@ for net1_iteration in range(maxIter):
 	for layer in solver.net.layers:
     		for blob in layer.blobs:
         		blob.data[...] -= learningRate*blob.diff
-	
+	print "Sum of conv3p is: " + str(np.sum(solver.net.blobs['conv3p'].data))
+	difference = solver.net.blobs['conv3p'].data-solver.net.blobs['conv3'].data
+	loss = np.sum(difference**2)/solver.net.blobs['conv3p'].num/2
 	# get the value of the loss
 	losses[net1_iteration] = float(solver.net.blobs['loss'].data)
 	print "Loss is: " + str(float(solver.net.blobs['loss'].data))
+	print "And I thought it would be:" + str(loss)
+	print "Iteration " + str(net1_iteration) + ": net1 back pass finish"
 	
-	print "########## NET 2 BACKWARD PASS FINISH ##########"
+	np.save('../models/snapshots/net1_losses', losses)	
 
-	print "########## END OF THE ITERATION ##########"
-	
-np.save('../models/snapshots/net1_losses', losses)

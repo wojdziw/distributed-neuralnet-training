@@ -1,34 +1,32 @@
 name: "CaffeNet"
 layer {
   name: "data2"
-  type: "MemoryData"
+  type: "Data"
   top: "data2"
   top: "label"
   include {
     phase: TRAIN
   }
   
-  memory_data_param {
+  data_param {
+    source: "../input/net2_train_lmdb_zeros"
     batch_size: 256
-    channels: 256
-    height: 13
-    width: 13 
+    backend: LMDB
   }
 }
 layer {
   name: "data2"
-  type: "MemoryData"
+  type: "Data"
   top: "data2"
   top: "label"
   include {
     phase: TEST
   }
   
-  memory_data_param {
-    batch_size: 256
-    channels: 256
-    height: 13
-    width: 13
+  data_param {
+    source: "../input/net2_validation_lmdb_zeros"
+    batch_size: 50
+    backend: LMDB
   }
 }
 
@@ -186,9 +184,27 @@ layer {
 }
 
 layer {
+  name: "pred"
+  type: "Softmax"
+  bottom: "fc6"
+  top: "pred"
+}
+
+layer {
   name: "loss"
   type: "SoftmaxWithLoss"
   bottom: "fc6"
   bottom: "label"
   top: "loss"
+}
+
+layer {
+  name: "loll"
+  type: "HingeLoss"
+  bottom: "pred"
+  bottom: "label"
+  top: "loll"
+  hinge_loss_param {
+    norm: L2
+  }
 }
