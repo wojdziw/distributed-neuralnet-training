@@ -29,10 +29,6 @@ for net1_iteration in range(maxIter):
 	data_pool2 = solver.net.blobs['pool2'].data
 	data_conv3 = solver.net.blobs['conv3'].data
 	data_conv3p = solver.net.blobs['conv3p'].data
-	
-	# generate some lol data to see if net2 is converging
-	lol_data = np.zeros(data_pool2.shape, dtype=np.float32)
-	lol_labels = np.ones(labels.shape, dtype=np.float32)
 		
 	# save the output of the second convolutional layer (+pool) into a file	
 	np.save('../comms/data_pool2', data_pool2)
@@ -82,5 +78,7 @@ for net1_iteration in range(maxIter):
 	print "And I thought it would be:" + str(loss)
 	print "Iteration " + str(net1_iteration) + ": net1 back pass finish"
 	
-	np.save('../models/snapshots/net1_losses', losses)	
+	np.save('../models/snapshots/net1_losses', losses)
+	if net1_iteration%100==0: #and net1_iteration>0:
+		solver.net.save('../models/snapshots/net1_iter'+str(net1_iteration)+'.caffemodel')	
 
