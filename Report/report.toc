@@ -1,0 +1,21 @@
+\contentsline {section}{\numberline {1}Introduction}{1}
+\contentsline {section}{\numberline {2}Background - machine intelligence}{2}
+\contentsline {subsection}{\numberline {2.1}Neural networks}{2}
+\contentsline {subsection}{\numberline {2.2}Gradient descent}{6}
+\contentsline {subsection}{\numberline {2.3}Deep learning}{7}
+\contentsline {section}{\numberline {3}Scaling and parallelisation}{8}
+\contentsline {section}{\numberline {4}Breaking it down}{9}
+\contentsline {subsection}{\numberline {4.1}Large Scale Distributed Deep Networks}{10}
+\contentsline {subsection}{\numberline {4.2}Project Adam}{11}
+\contentsline {subsection}{\numberline {4.3}Contrast and conclusions}{12}
+\contentsline {section}{\numberline {5}ADMM}{12}
+\contentsline {section}{\numberline {6}ADMM and deep learning}{14}
+\contentsline {subsection}{\numberline {6.1}Strategy}{14}
+\contentsline {subsection}{\numberline {6.2}Dual net}{14}
+\contentsline {section}{\numberline {7}Architecture}{16}
+\contentsline {subsection}{\numberline {7.1}Putting it all together}{16}
+\contentsline {subsection}{\numberline {7.2}Dataset}{18}
+\contentsline {subsection}{\numberline {7.3}Deep learning frameworks}{18}
+\contentsline {subsection}{\numberline {7.4}Caffe tricks and quirks}{19}
+\contentsline {section}{\numberline {8}The algorithm}{20}
+\contentsline {section}{\numberline {9}Testing}{22}
