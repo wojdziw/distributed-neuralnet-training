@@ -40,8 +40,6 @@ for net1_iteration in range(maxIter):
 	# send net1 labels to net2 to align the information
 	np.save('../comms/net1_labels', labels)
 
-
-
 	print "Iteration " + str(net1_iteration) + ": net1 forward pass finish"
 		
 	print "Iteration " + str(net1_iteration) + ": net2 forward and back pass start"
