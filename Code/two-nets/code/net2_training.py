@@ -4,7 +4,7 @@ import numpy as np
 import time
 
 solver = caffe.SGDSolver('../models/net2_solver.prototxt')
-maxIter = 1000
+maxIter = 30
 stepPerIter = 1
 learningRate = 0.00000001
 

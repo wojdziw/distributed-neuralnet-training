@@ -47,7 +47,8 @@ def create_lmdb(input_path, output_path, image_width, image_height, no_filters):
     os.system('rm -rf  ' + output_path)
 
     data = [img for img in glob.glob(input_path)]
-    
+    np.save('../comms/image_data', data)
+
     #Shuffle data
     random.shuffle(data)
 
@@ -56,9 +57,8 @@ def create_lmdb(input_path, output_path, image_width, image_height, no_filters):
         for in_idx, img_path in enumerate(data):
             if in_idx %  6 == 0:
                 continue
-            #img = np.ones([image_height, image_width, no_filters])
-	    img = cv2.imread(img_path, cv2.IMREAD_COLOR)
-	    img = transform_img(img, image_width, image_height)
+	        img = cv2.imread(img_path, cv2.IMREAD_COLOR)
+	        img = transform_img(img, image_width, image_height)
             if 'cat' in img_path:
                 label = 0
             else:
@@ -73,7 +73,7 @@ def create_lmdb(input_path, output_path, image_width, image_height, no_filters):
     return 0
 
 #Size of images
-image_width = 227
+image_width = 227   
 image_height = 227
 no_filters = 3
 create_lmdb("../input/train/*jpg","../input/net1_train_lmdb", image_width, image_height, no_filters)

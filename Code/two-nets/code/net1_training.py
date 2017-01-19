@@ -5,7 +5,7 @@ import time
 
 solver = caffe.get_solver('../models/net1_solver.prototxt')
 
-maxIter = 1000 
+maxIter = 30 
 stepPerIter = 1
 learningRate = 0.00000001
 
