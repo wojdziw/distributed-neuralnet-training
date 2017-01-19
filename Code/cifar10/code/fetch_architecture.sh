@@ -1,1 +1,1 @@
-scp fyp:~/Final-Year-Project/Code/two-nets/code/*.png .
+scp fyp:~/Final-Year-Project/Code/cifar10/code/*.png .
