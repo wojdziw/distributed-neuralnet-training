@@ -36,5 +36,5 @@ plt.title('Net12 losses', fontsize=10)
 plt.grid(True)
 
 # plt.show()
-plt.savefig('losses.png', fontsize=10)
+plt.savefig('../images/losses.png', fontsize=10)
 plt.close()

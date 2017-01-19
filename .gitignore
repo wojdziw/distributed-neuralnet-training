@@ -11,3 +11,4 @@ Code/simple-deep/models/submission_model_1.csv
 Code/two-nets/code/model.png
 *.pyc
 Code/cifar10/input/*
+Code/cifar10/images
