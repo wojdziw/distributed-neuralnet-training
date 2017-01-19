@@ -1,4 +1,4 @@
-net: "/home/wojciech/Final-Year-Project/Code/two-nets/models/net12_train_def.prototxt"
+net: "/home/wojciech/Final-Year-Project/Code/cifar10/models/net12_train_def.prototxt"
 test_iter: 1
 test_interval: 100000
 base_lr: 0.001
@@ -10,5 +10,5 @@ max_iter: 40000
 momentum: 0.9	
 weight_decay: 0.0005
 snapshot: 200
-snapshot_prefix: "/home/wojciech/Final-Year-Project/Code/two-nets/models/snapshots/net12"
+snapshot_prefix: "/home/wojciech/Final-Year-Project/Code/cifar10/models/snapshots/net12"
 solver_mode: GPU

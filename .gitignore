@@ -13,5 +13,6 @@ Code/two-nets/code/model.png
 Code/cifar10/input/*
 Code/cifar10/images/*
 Code/cifar10/comms/*
+Code/cifar10/models/snapshots/*
 *.DS_Store
 

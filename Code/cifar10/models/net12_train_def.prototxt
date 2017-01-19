@@ -29,12 +29,12 @@ layer {
   }
   transform_param {
     mirror: false
-    crop_size: 227
+    crop_size: 32
 
   }
 
   data_param {
-    source: "../input/net1_validation_lmdb"
+    source: "../input/net1_test_lmdb"
     batch_size: 50
     backend: LMDB
   }
@@ -56,8 +56,9 @@ layer {
   }
   convolution_param {
     num_output: 96
-    kernel_size: 11
-    stride: 4
+    pad: 2
+    kernel_size: 5
+    stride: 1
     weight_filler {
       type: "gaussian"
       std: 0.01
