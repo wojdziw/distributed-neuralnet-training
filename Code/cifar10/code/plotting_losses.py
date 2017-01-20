@@ -1,10 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import os.path
 
 x = range(1000)
 
-printDual = False
-printSingle = True
+printDual = os.path.isfile("../models/snapshots/net1_losses.npy")
+printSingle = os.path.isfile("../models/snapshots/net12_losses.npy")
 
 if printDual:
 	
@@ -34,7 +35,7 @@ if printSingle:
 	plt.subplot(313)
 	plt.plot(x, y3)
 	plt.yscale('linear')
-	plt.ylim(0.2, 2)
+	plt.ylim(0, 3)
 	plt.title('Net12 losses', fontsize=10)
 	plt.grid(True)
 
