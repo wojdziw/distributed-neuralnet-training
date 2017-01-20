@@ -1,4 +1,4 @@
-net: "/home/wojciech/Final-Year-Project/Code/two-nets/models/net2_train_def.prototxt"
+net: "/home/wojciech/Final-Year-Project/Code/cifar10/models/net2_train_def.prototxt"
 
 base_lr: 0.001
 lr_policy: "step"
@@ -6,8 +6,8 @@ gamma: 0.1
 stepsize: 2500
 display: 1
 max_iter: 40000
-momentum: 0.9	
+momentum: 0.9
 weight_decay: 0.0005
 snapshot: 100
-snapshot_prefix: "/home/wojciech/Final-Year-Project/Code/two-nets/models/snapshots/net2"
+snapshot_prefix: "/home/wojciech/Final-Year-Project/Code/cifar10/models/snapshots/net2"
 solver_mode: GPU

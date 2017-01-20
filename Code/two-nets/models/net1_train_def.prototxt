@@ -10,7 +10,7 @@ layer {
   transform_param {
     mirror: true
     crop_size: 227
-    
+
   }
 
   data_param {
@@ -30,7 +30,7 @@ layer {
   transform_param {
     mirror: false
     crop_size: 227
-    
+
   }
 
   data_param {
@@ -104,7 +104,7 @@ layer {
     num_output: 256
     pad: 2
     kernel_size: 5
-    stride: 1 
+    stride: 1
     weight_filler {
       type: "gaussian"
       std: 0.01
@@ -203,4 +203,3 @@ layer {
   bottom: "conv3p"
   top: "loss"
 }
-

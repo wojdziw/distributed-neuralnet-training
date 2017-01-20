@@ -18,11 +18,11 @@ import lmdb
 import numpy as np
 from caffe.proto import caffe_pb2
 
-caffe.set_mode_cpu() 
+caffe.set_mode_gpu()
 
 #Size of images
-IMAGE_WIDTH = 227
-IMAGE_HEIGHT = 227
+IMAGE_WIDTH = 32
+IMAGE_HEIGHT = 32
 
 '''
 Image processing helper function
@@ -55,25 +55,38 @@ transformer.set_transpose('data', (2,0,1))
 Making predicitions
 '''
 #Reading image paths
-test_img_paths = [img_path for img_path in glob.glob("../input/train/*jpg")]
+test_img_paths = [img_path for img_path in glob.glob("../input/test/*jpg")]
+test_img_labels = np.load("../input/test/labels.npy")
+
+#Calculating the accuracy
+noCorrect = 0.0
 
 #Making predictions
 test_ids = []
 preds = []
 # for img_path in test_img_paths:
 # for i in range(len(test_img_paths):
-for i in range(50):
-    img_path = test_img_paths[i] 
+for i in range(10000):
+    if i%500 == 0:
+        print i
+
+    img_path = test_img_paths[i]
     img = cv2.imread(img_path, cv2.IMREAD_COLOR)
     img = transform_img(img, img_width=IMAGE_WIDTH, img_height=IMAGE_HEIGHT)
-    
+
     net.blobs['data'].data[...] = transformer.preprocess('data', img)
     out = net.forward()
     pred_probas = out['prob']
 
-    test_ids = test_ids + [img_path.split('/')[-1][:-4]]
     preds = preds + [pred_probas.argmax()]
+    img_number = img_path.split("img")[1].split(".")[0]
 
-    print img_path
-    print pred_probas.argmax()
-    print '-------'
+    #print img_path
+    #print str(i) + " predicted label: " + str(pred_probas.argmax()) + ", true label: " + str(test_img_labels[int(img_number)][0])
+    #print '-------'
+
+    if pred_probas.argmax() == test_img_labels[int(img_number)][0]:
+        noCorrect += 1
+
+accuracy = noCorrect/10000
+print accuracy

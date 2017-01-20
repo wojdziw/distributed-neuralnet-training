@@ -4,7 +4,8 @@ import numpy as np
 import time
 
 solver = caffe.get_solver('../models/net12_solver.prototxt')
-
+# this is a comment
+# another one
 maxIter = 1000
 stepPerIter = 1
 
@@ -15,4 +16,3 @@ for net1_iteration in range(maxIter):
 	solver.step(1)
 	losses[net1_iteration] = float(solver.net.blobs['loss'].data)
         np.save('../models/snapshots/net12_losses', losses)
-	

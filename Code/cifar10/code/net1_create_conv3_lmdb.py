@@ -60,7 +60,7 @@ def create_lmdb(input_path, output_path, image_width, image_height, no_filters):
             img = np.zeros([image_height, image_width, no_filters])
 	    #img = cv2.imread(img_path, cv2.IMREAD_COLOR)
 	    #img = transform_img(img, image_width, image_height)
-            
+
             datum = make_datum(img, 1, no_filters)
             in_txn.put('{:0>5d}'.format(in_idx), datum.SerializeToString())
             print '{:0>5d}'.format(in_idx) + ':' + img_path
@@ -71,7 +71,7 @@ def create_lmdb(input_path, output_path, image_width, image_height, no_filters):
     return 0
 
 #Size of images
-image_width = 13
-image_height = 13
+image_width = 8
+image_height = 8
 no_filters = 384
 create_lmdb("../input/train/*jpg","../input/net1_lmdb_conv3", image_width, image_height, no_filters)
