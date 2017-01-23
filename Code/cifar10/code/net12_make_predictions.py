@@ -1,13 +1,5 @@
-
 '''
-Title           :make_predictions_1.py
-Description     :This script makes predictions using the 1st trained model and generates a submission file.
-Author          :Adil Moujahid
-Date Created    :20160623
-Date Modified   :20160625
-version         :0.2
-usage           :python make_predictions_1.py
-python_version  :2.7.11
+Adapted from Adil Moujahid
 '''
 
 import os
@@ -44,16 +36,14 @@ def transform_img(img, img_width=IMAGE_WIDTH, img_height=IMAGE_HEIGHT):
 
 #Read model architecture and trained model's weights
 net = caffe.Net('../models/net12_deploy_def.prototxt',
-                '../models/snapshots/net12_iter_1000.caffemodel',
+                '../models/snapshots/net12_iter_600.caffemodel',
                 caffe.TEST)
 
 #Define image transformers
 transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
 transformer.set_transpose('data', (2,0,1))
 
-'''
-Making predicitions
-'''
+
 #Reading image paths
 test_img_paths = [img_path for img_path in glob.glob("../input/test/*jpg")]
 test_img_labels = np.load("../input/test/labels.npy")
@@ -65,8 +55,7 @@ noCorrect = 0.0
 test_ids = []
 preds = []
 # for img_path in test_img_paths:
-# for i in range(len(test_img_paths):
-for i in range(10000):
+for i in range(len(test_img_paths)):
     if i%500 == 0:
         print i
 
@@ -78,6 +67,8 @@ for i in range(10000):
     out = net.forward()
     pred_probas = out['prob']
 
+    print net.blobs['conv1'].data[...]
+
     preds = preds + [pred_probas.argmax()]
     img_number = img_path.split("img")[1].split(".")[0]
 
@@ -88,5 +79,5 @@ for i in range(10000):
     if pred_probas.argmax() == test_img_labels[int(img_number)][0]:
         noCorrect += 1
 
-accuracy = noCorrect/10000
+accuracy = noCorrect/len(test_img_paths)
 print accuracy
