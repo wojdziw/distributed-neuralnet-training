@@ -24,7 +24,7 @@ if printDual:
 	plt.subplot(312)
 	plt.plot(x, y2)
 	plt.yscale('linear')
-	plt.ylim(0.58, 1)
+	plt.ylim(2.3, 2.8)
 	plt.title('Net2 losses', fontsize=10)
 	plt.grid(True)
 
