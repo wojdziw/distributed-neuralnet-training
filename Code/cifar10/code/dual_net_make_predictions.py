@@ -1,13 +1,5 @@
-
 '''
-Title           :make_predictions_1.py
-Description     :This script makes predictions using the 1st trained model and generates a submission file.
-Author          :Adil Moujahid
-Date Created    :20160623
-Date Modified   :20160625
-version         :0.2
-usage           :python make_predictions_1.py
-python_version  :2.7.11
+Adapted from Adil Moujahid
 '''
 
 import os
@@ -18,11 +10,11 @@ import lmdb
 import numpy as np
 from caffe.proto import caffe_pb2
 
-caffe.set_mode_cpu() 
+caffe.set_mode_cpu()
 
 #Size of images
-IMAGE_WIDTH = 227
-IMAGE_HEIGHT = 227
+IMAGE_WIDTH = 32
+IMAGE_HEIGHT = 32
 
 '''
 Image processing helper function
@@ -40,42 +32,75 @@ def transform_img(img, img_width=IMAGE_WIDTH, img_height=IMAGE_HEIGHT):
 
     return img
 
-
-
 #Read model architecture and trained model's weights
 net1 = caffe.Net('../models/net1_deploy_def.prototxt',
-                '../models/net1_iter_50.caffemodel',
+                '../models/snapshots/first-try/net1_iter100.caffemodel',
                 caffe.TEST)
 
 net2 = caffe.Net('../models/net2_deploy_def.prototxt',
-                '../models/net2_iter_50.caffemodel',
+                '../models/snapshots/first-try/net2_iter_100.caffemodel',
                 caffe.TEST)
 
 #Define image transformers
-transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
-transformer.set_transpose('data', (2,0,1))
+transformer1 = caffe.io.Transformer({'data': net1.blobs['data'].data.shape})
+transformer1.set_transpose('data', (2,0,1))
 
+transformer2 = caffe.io.Transformer({'data2': net2.blobs['data2'].data.shape})
+transformer2.set_transpose('data2', (2,0,1))
 
-#Making predicitions
 
 #Reading image paths
-test_img_paths = [img_path for img_path in glob.glob("../input/test1/*jpg")]
+test_img_paths = [img_path for img_path in glob.glob("../input/test/*jpg")]
+test_img_labels = np.load("../input/test/labels.npy")
+
+#Calculating the accuracy
+noCorrect = 0.0
 
 #Making predictions
-#DO THIS FOR NET1 AND NET2
 test_ids = []
 preds = []
-for img_path in test_img_paths:
+noAnalysed = 1 #len(test_img_paths)
+
+for i in range(noAnalysed):
+    if i%5 == 0:
+        print i
+        print noCorrect/(i-1)
+
+    img_path = test_img_paths[i]
     img = cv2.imread(img_path, cv2.IMREAD_COLOR)
     img = transform_img(img, img_width=IMAGE_WIDTH, img_height=IMAGE_HEIGHT)
-    
-    net.blobs['data'].data[...] = transformer.preprocess('data', img)
-    out = net.forward()
+
+    net1.blobs['data'].data[...] = transformer1.preprocess('data', img)
+
+    out = net1.forward()
+    data_pool2 = net1.blobs['pool2'].data[0]
+
+    # multiply input by one of the images and see if it gives something out
+    print net1.blobs['data'].data.shape
+    print "###################################################"
+    print net1.params['conv1'][0].data.shape
+    print "###################################################"
+    print np.sum(net1.blobs['conv1'].data)
+
+    processedImage =  np.zeros([8,8,256])
+
+    for j in range(256):
+        processedImage[:,:,j] = data_pool2[j,:,:]
+
+    net2.blobs['data2'].data[...] = transformer2.preprocess('data2', processedImage)
+
+    out = net2.forward()
     pred_probas = out['prob']
 
-    test_ids = test_ids + [img_path.split('/')[-1][:-4]]
     preds = preds + [pred_probas.argmax()]
+    img_number = img_path.split("img")[1].split(".")[0]
 
-    print img_path
-    print pred_probas.argmax()
-    print '-------'
+    #print img_path
+    #print str(i) + " predicted label: " + str(pred_probas.argmax()) + ", true label: " + str(test_img_labels[int(img_number)][0])
+    #print '-------'
+
+    if pred_probas.argmax() == test_img_labels[int(img_number)][0]:
+        noCorrect += 1
+
+accuracy = noCorrect/noAnalysed
+print accuracy

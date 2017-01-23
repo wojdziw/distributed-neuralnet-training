@@ -30,7 +30,7 @@ for net1_iteration in range(maxIter):
 	data_pool2 = solver.net.blobs['pool2'].data
 	data_conv3 = solver.net.blobs['conv3'].data
 	data_conv3p = solver.net.blobs['conv3p'].data
-
+	
 	# save the output of the second convolutional layer (+pool) into a file
 	np.save('../comms/data_pool2', data_pool2)
 
@@ -85,4 +85,4 @@ for net1_iteration in range(maxIter):
 	np.save('../models/snapshots/net1_losses', losses)
 	np.save('../models/snapshots/net1_perceived_losses', ithoughtlosses)
 	if net1_iteration%100==0: #and net1_iteration>0:
-		solver.net.save('../models/snapshots/net1_iter'+str(net1_iteration)+'.caffemodel')
+		solver.net.save('../models/snapshots/net1_iter_'+str(net1_iteration)+'.caffemodel')

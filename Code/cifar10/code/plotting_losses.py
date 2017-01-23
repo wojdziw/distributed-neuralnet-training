@@ -2,13 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os.path
 
-printDual = os.path.isfile("../models/snapshots/net1_losses.npy")
-printSingle = os.path.isfile("../models/snapshots/net12_losses.npy")
+printDual = os.path.isfile("../models/snapshots/first-try/net1_losses.npy")
+printSingle = os.path.isfile("../models/snapshots/first-try/net12_losses.npy")
 
 if printDual:
 
-	y1 = np.load("../models/snapshots/net1_losses.npy")
-	y2 = np.load("../models/snapshots/net2_losses.npy")
+	y1 = np.load("../models/snapshots/first-try/net1_perceived_losses.npy")
+	y2 = np.load("../models/snapshots/first-try/net2_losses.npy")
 
 	x = range(y1.shape[0])
 
@@ -30,7 +30,7 @@ if printDual:
 
 if printSingle:
 
-	y3 = np.load("../models/snapshots/net12_losses.npy")
+	y3 = np.load("../models/snapshots/first-try/net12_losses.npy")
 
 	x = range(y3.shape[0])
 
