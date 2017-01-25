@@ -11,6 +11,11 @@ learningRate = 0.00000001
 
 losses = np.zeros(maxIter)
 ithoughtlosses = np.zeros(maxIter)
+conv1sum = np.zeros(maxIter)
+conv3sum = np.zeros(maxIter)
+conv3psum = np.zeros(maxIter)
+
+
 
 net2_iteration = -1
 
@@ -30,7 +35,10 @@ for net1_iteration in range(maxIter):
 	data_pool2 = solver.net.blobs['pool2'].data
 	data_conv3 = solver.net.blobs['conv3'].data
 	data_conv3p = solver.net.blobs['conv3p'].data
-	
+
+	print "----->>>> The sum of conv1 is: " + str(np.sum(solver.net.blobs['conv1'].data))
+	conv1sum[net1_iteration] = np.sum(solver.net.blobs['conv1'].data)
+
 	# save the output of the second convolutional layer (+pool) into a file
 	np.save('../comms/data_pool2', data_pool2)
 
@@ -69,7 +77,9 @@ for net1_iteration in range(maxIter):
     		for blob in layer.blobs:
         		blob.data[...] -= learningRate*blob.diff
 
-	print "Sum of conv3p is: " + str(np.sum(solver.net.blobs['conv3p'].data))
+	print "----->>>> The sum of conv3p is: " + str(np.sum(solver.net.blobs['conv3p'].data))
+	conv3psum[net1_iteration] = np.sum(solver.net.blobs['conv3p'].data)
+	conv3sum[net1_iteration] = np.sum(solver.net.blobs['conv3'].data)
 
 	difference = solver.net.blobs['conv3p'].data-solver.net.blobs['conv3'].data
 	loss = np.sum(difference**2)/solver.net.blobs['conv3p'].num/2
@@ -84,5 +94,9 @@ for net1_iteration in range(maxIter):
 
 	np.save('../models/snapshots/net1_losses', losses)
 	np.save('../models/snapshots/net1_perceived_losses', ithoughtlosses)
+	np.save('../models/snapshots/conv1sum', conv1sum)
+	np.save('../models/snapshots/conv3sum', conv3sum)
+	np.save('../models/snapshots/conv3psum', conv3psum)
+
 	if net1_iteration%100==0: #and net1_iteration>0:
 		solver.net.save('../models/snapshots/net1_iter_'+str(net1_iteration)+'.caffemodel')
