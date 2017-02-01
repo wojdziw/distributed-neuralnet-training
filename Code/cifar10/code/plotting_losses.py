@@ -16,7 +16,8 @@ if printDual:
 
 	plt.subplot(311)
 	plt.plot(x, y1)
-	plt.yscale('log')
+	plt.yscale('linear')
+	#plt.ylim(25000,30000)
 	plt.title('Net1 losses', fontsize=10)
 	plt.grid(True)
 
@@ -24,7 +25,7 @@ if printDual:
 	plt.subplot(312)
 	plt.plot(x, y2)
 	plt.yscale('linear')
-	plt.ylim(2.3, 2.8)
+	plt.ylim(0.5, 3)
 	plt.title('Net2 losses', fontsize=10)
 	plt.grid(True)
 
@@ -37,7 +38,7 @@ if printSingle:
 	plt.subplot(313)
 	plt.plot(x, y3)
 	plt.yscale('linear')
-	plt.ylim(0, 3)
+	plt.ylim(0.5, 3)
 	plt.title('Net12 losses', fontsize=10)
 	plt.grid(True)
 
