@@ -3,11 +3,15 @@ import os
 import numpy as np
 import time
 
+GPU_ID = 1
+caffe.set_mode_gpu()
+caffe.set_device(GPU_ID)
+
 solver = caffe.get_solver('../models/net1_solver.prototxt')
 
 maxIter = 1000
 stepPerIter = 1
-learningRate = 0.00000001
+learningRate = 0.000001
 
 losses = np.zeros(maxIter)
 ithoughtlosses = np.zeros(maxIter)
@@ -54,10 +58,13 @@ for net1_iteration in range(maxIter):
 
 	# check if net2 has finished its computation
 	while(net1_iteration != net2_iteration):
-		time.sleep(10)
+		time.sleep(5)
 		print "waiting..."
 		if os.path.exists("../comms/net2_iteration.npy"):
-			net2_iteration = int(np.load("../comms/net2_iteration.npy"))
+			try:
+				net2_iteration = int(np.load("../comms/net2_iteration.npy"))
+			except:
+				pass
 
 	print "Iteration " + str(net1_iteration) + ": net2 forward and back pass finish"
 

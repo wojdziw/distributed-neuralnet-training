@@ -10,7 +10,9 @@ import lmdb
 import numpy as np
 from caffe.proto import caffe_pb2
 
+GPU_ID = 1
 caffe.set_mode_gpu()
+caffe.set_device(GPU_ID)
 
 #Size of images
 IMAGE_WIDTH = 32
@@ -67,7 +69,7 @@ for i in range(len(test_img_paths)):
     out = net.forward()
     pred_probas = out['prob']
 
-    print net.blobs['conv1'].data[...]
+    #print net.blobs['conv1'].data[...]
 
     preds = preds + [pred_probas.argmax()]
     img_number = img_path.split("img")[1].split(".")[0]

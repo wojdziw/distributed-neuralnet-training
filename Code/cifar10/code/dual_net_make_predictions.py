@@ -10,7 +10,9 @@ import lmdb
 import numpy as np
 from caffe.proto import caffe_pb2
 
-caffe.set_mode_cpu()
+GPU_ID = 1
+caffe.set_mode_gpu()
+caffe.set_device(GPU_ID)
 
 #Size of images
 IMAGE_WIDTH = 32
@@ -34,11 +36,11 @@ def transform_img(img, img_width=IMAGE_WIDTH, img_height=IMAGE_HEIGHT):
 
 #Read model architecture and trained model's weights
 net1 = caffe.Net('../models/net1_deploy_def.prototxt',
-                '../models/snapshots/first-try/net1_iter200.caffemodel',
+                '../models/snapshots/net1_iter_900.caffemodel',
                 caffe.TEST)
 
 net2 = caffe.Net('../models/net2_deploy_def.prototxt',
-                '../models/snapshots/first-try/net2_iter_200.caffemodel',
+                '../models/snapshots/net2_iter_900.caffemodel',
                 caffe.TEST)
 
 #Define image transformers
@@ -59,7 +61,7 @@ noCorrect = 0.0
 #Making predictions
 test_ids = []
 preds = []
-noAnalysed = 1 #len(test_img_paths)
+noAnalysed = 10000 #len(test_img_paths)
 
 for i in range(noAnalysed):
     if i%5 == 0:
@@ -76,11 +78,11 @@ for i in range(noAnalysed):
     data_pool2 = net1.blobs['pool2'].data[0]
 
     # multiply input by one of the images and see if it gives something out
-    print net1.blobs['data'].data.shape
-    print "###################################################"
-    print net1.params['conv1'][0].data.shape
-    print "###################################################"
-    print np.sum(net1.blobs['conv1'].data)
+    #print net1.blobs['data'].data.shape
+    #print "###################################################"
+    #print net1.params['conv1'][0].data.shape
+    #print "###################################################"
+    #print np.sum(net1.blobs['conv1'].data)
 
     processedImage =  np.zeros([8,8,256])
 
