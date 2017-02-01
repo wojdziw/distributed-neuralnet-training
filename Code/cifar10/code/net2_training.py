@@ -3,6 +3,10 @@ import os
 import numpy as np
 import time
 
+GPU_ID = 2
+caffe.set_mode_gpu()
+caffe.set_device(GPU_ID)
+
 solver = caffe.SGDSolver('../models/net2_solver.prototxt')
 maxIter = 1000
 stepPerIter = 1
@@ -23,10 +27,13 @@ for net2_iteration in range(maxIter):
 	# We can only start an iteration once we have data ready from net1
 	while(net1_iteration != net2_iteration):
 		# tiny delay to prevent accessing an open file
-		time.sleep(10)
+		time.sleep(5)
 		print "waiting..."
 		if os.path.exists("../comms/net1_iteration.npy"):
-			net1_iteration = int(np.load("../comms/net1_iteration.npy"))
+			try:
+				net1_iteration = int(np.load("../comms/net1_iteration.npy"))
+			except:
+				pass
 
 	# loading the parameters from net1
 	data_pool2 = np.load("../comms/data_pool2.npy")

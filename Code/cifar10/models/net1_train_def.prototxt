@@ -15,7 +15,7 @@ layer {
 
   data_param {
     source: "../input/net1_train_lmdb"
-    batch_size: 256
+    batch_size: 4095
     backend: LMDB
   }
 }
@@ -179,7 +179,7 @@ layer {
   }
   data_param {
     source: "../input/net1_conv3_train_lmdb"
-    batch_size: 256
+    batch_size: 4095
     backend: LMDB
   }
 }
@@ -199,8 +199,12 @@ layer {
 
 layer {
   name: "loss"
-  type: "EuclideanLoss"
+  type: "Python"
   bottom: "conv3"
   bottom: "conv3p"
   top: "loss"
+  python_param {
+    module: 'pyloss'
+    layer: 'EuclideanLossLayer'
+  }
 }
