@@ -115,9 +115,9 @@
 	
 	The most rudimentary way of describing the interdependencies between variables in the set is their linearity. If we can describe the classification boundary by a function linear in its coefficients, then we call the dataset linear. Most of algorithms can deal with this sort of datasets quite well. In fact, if we extend our discussion to regression, the learning problem has already been approached in the 19th century. This is because even fitting a best-fit line to a set of points on a 2D plane lets us detect trends in the data. Problem arises when the dataset is not linearly separable - if there is a more subtle relationship between the data features. Sadly for linear regression, but excitingly for the development of science, most of the "natural" datasets we study are not linear. \textbf{Machine learning} is the field concerned with developing techniques robust to the dataset charasteristics and bringing the technology closer to the sophistication with which the humans understand the world.
 	
-	Interestingly the problems that we, humans, find awfuly easy, such as informed vision, turn out to be tremendously hard for the computers to perform. Our brains are amazingly complicated machines, with the computational power available at a very low energetic cost. Millions of years of evolution equipped us with skills that are impossible to replicate with the current technology, which certainly doesn't mean we shouldn't try, though! The research on human visual cortex (Kruger et al., 2013 \cite{kruger2013deep}), for example, gave us significant insight into the generalised machine vision problems, and stimulated the development of a field known as deep learning.
+	Interestingly the problems that we, humans, find awfully easy, such as informed vision, turn out to be tremendously hard for the computers to perform. Our brains are amazingly complicated machines, with the computational power available at a very low energetic cost. Millions of years of evolution equipped us with skills that are impossible to replicate with the current technology, which certainly doesn't mean we shouldn't try, though! The research on human visual cortex (Kruger et al., 2013 \cite{kruger2013deep}), for example, gave us significant insight into the generalised machine vision problems, and stimulated the development of a field known as deep learning.
 	
-	Current technology allows us to achieve tremendous image classification results, but novel methods need to be developed in order to tackle the new challenges. As it turns out, the more data we feed into the network, the better it performs, however there is only so much data that we can store on a single processing unit. This project aims to restrict the amount of data processed on a single unit by distributing the computation among many distinct servers. This approach will ideally be indistinguishable to the outside world from a training a single network and should lead to similar, if not better, classification results. Before we delve into the technical details of the distributed training itself, though, let's revisit some basic machine learning concepts first in order to establish a solid grounding for the later considerations.
+	Current technology allows us to achieve tremendous image classification results, but novel methods need to be developed in order to tackle the new challenges. It turns out that the complexity of the functions a neural network can learn increases with the increasing depth of the net itself. To construct a truly deep network, though, we need more space for computation, which we can achieve by distributing the computation among many distinct servers. This approach will ideally be indistinguishable to the outside world from a training a single network and should lead to similar, if not better, classification results. Before we delve into the technical details of the distributed training itself, though, let's revisit some basic machine learning concepts first in order to establish a solid grounding for the later considerations.
 	
 	\section{Background - machine intelligence}
 	
@@ -429,7 +429,11 @@
 	
 	\subsection{Dataset}
 	
-	Before we delve further into the intricacies of the dual network architectures let us just quickly summarize the dataset used for the training. The training set consisted of 10,000 images of cats and dogs, 5,000 each, of various dimensions. The animals presented in the images were captured in different positions and settings. The images were scaled into 227x227 resolution before the training.
+	Before we delve further into the intricacies of the dual network architectures let us just quickly summarize the dataset used for the training.
+	
+	Initially, the training set consisted of 10,000 images of cats and dogs, 5,000 each, of various dimensions. The animals presented in the images were captured in different positions and settings. The images were scaled into 227x227 resolution before the training.
+	
+	Even though useful for getting started, the dataset proved to be too computationally heavy for sufficiently quick prototyping. That is why the cifar10 dataset was used instead. It consists of CHECK THIS --->>>>>>>> 50,000 training images and 10,000 test images representing objects of 10 different classes, with 32x32px resolution.
 	
 	\subsection{Deep learning frameworks}
 	Recent years have seen a tremendous rate of development of the field of deep learning, and, not surprisingly, a surge in the number of deep learning frameworks. Today the choice is abundant, and the main competitors vary significantly when it comes to performance, implementation and usability. Due to the very technical, low-level nature of the project, significant consideration was given to the choice of an appropriate framework.
@@ -505,6 +509,10 @@
 	
 	The meticulously planned setup above then required a thorough heuristic validation. The hardware used to test the algorithms was a single Nvidia GeForce GTX Titan Graphical Processing Unit for each network, hence two of them in total, placed on two distinct servers within a cluster.
 	
+	Deep neural networks, particularly as implemented by one of the modern frameworks, often involve a complex programmatic setup. In our case, an additional level of complexity is introduced by the fact that the network topology is divided between several computational units. All of this results in a very high sensitivity of the model to the input parameters, and further emphasises the need for meticulous planning and thorough understanding of the framework at hand. Naturally, both come easier with sufficient practice and a fair bit of heuristic trialling which became a significant part of the project. The next few sections will present the variability of the model with respect to some of the parameters and will then progress to describe the testing of the dual setup with various parameter combinations.
+	
+	\section{Technical difficulties}
+	
 	Naturally, many problems were encounted before the network started exhibiting the desired behaviour. Most of them were linked to the issues described in an earlier section, namely:
 	
 	\begin{itemize}
@@ -514,19 +522,182 @@
 	
 	The solutions to these are mentioned in the previous sections as well.
 	
-	Once initial performance metrics started looking positive, i.e. both the net1 and net2 losses decreased as the training proceeded, some baseline reults and conclusions could have been drawn.
+	Once initial performance metrics started looking positive, i.e. both net1 and net2 losses decreased as the training proceeded, some baseline results and conclusions could have been drawn.
 	
-	The losses computed after each of the iterations seem to be very volatile. Before we jump into the exact analysis of the problem, let's revisit the idea of the stochastic gradient descent. The gradient of the loss function computed by SGD is based on a random sample of the training set, which in our case is 256 images out of 10,000. This is clearly not representative of the whole population on its own, however over many iterations it should converge to a representative average. This is precisely what happens in our case. The losses computed after each iteration seem volatile, however over many iterations they do exhibit convergence. The stochastic batches we use for updating the loss are big enough for global minimization over a long time, but too small to produce a consistent trend at every iteration. This should not be a concern, though, as long as the general trend is visible.
+	\subsection{Two objectives}
 	
-	The point above mainly concerns both net1 and net2, however it is clearly more pronounced in the latter, hence more consideration is given into the possible explanations. Due to the nature of the algorithm, we are building up gradually more volatile calculations, hence the loss of net2 can be expected to vary more. In particular, it should be noted that the input of net2 is not constant, but varying with every iteration adding to the overall volatility.
+	Let us shortly remind ourselves about the dual setup topology used (fig. \ref{fig:net12separate}). We break down our big network in such a way that one of the layers is duplicated in both of the individual, smaller nets. The two nets are then trying to:
+	\begin{enumerate}
+		\item Converge in order for the two "dual layers" to become nearly identical.
+		\item Converge in order to match the ground truth of the classification predictions.
+	\end{enumerate}
+
+	These two objectives are manifested through the two losses, one for each network. The loss for network 1 tries to minimize the difference between the dual layers, whereas the one for network 2 aims to classify the images correctly.
 	
-	After all, both of the nets seem to be converging, which can be clearly seen in figure \ref{fig:losses}. It is clear, however, that the convergence of net2 is rather slow and volatile, hence more care has to be taken into fine-tuning its parameters in order to to achieve a more smooth, significant trend.
+	Losses that are optimized by the Stochastic Gradient Descent algorithm are in Caffe calculate and represented by layers. A lot of them are available out-of-the-box and even in the default version of Caffe provide reasonable space for fine-tuning the network. In some cases, though, the default layers are not sufficient to achieve the necessary metrics, which is solved by implementing custom layers in C++ or in the Python interface.
+		
+	There is little variability in choosing the correct architectural setup to achieve the second convergence objective above. The loss is based on the similarity between the image labels produced by the trained network, and the ground truth. Both are represented as a vector with values corresponding to the probabilities of image classification into each of the classes. The loss is then calculated according to the formula for the cross-entropy classification loss:
+	\begin{equation}
+		E = \frac{-1}{N} \sum_{n=1}^{N} log(\hat{p}_{n,l_n})
+	\end{equation}
+	
+	where $\hat{p}_n$ are the probability classes and $l_n$ are the true labels.
+	
+	\subsection{Net 1 loss}
+	
+	Unfortunately, the choice of the loss function is not as trivial when it comes to the first convergence objective. It quickly turned out that the default loss layers offered in Caffe are not sufficiently customizable to cater for our needs, hence a custom setup was built instead. Before we delve into the details, though, let's start off with a more fundamental analysis of what we want to achieve.
+	
+	How do we define identical? The convolutional layers we are dealing with are huge, four-dimensional matrices as opposed to simple two-dimensional vectors, hence a more involved similarity metric is required for the comparison. Fortunately, the laws and metrics in linear algebra easily generalize to higher dimensions. Hence, to compare the convolutional dual layers we can use a simple Euclidean loss, as defined by:
+	
+	\begin{equation}
+		E=\frac{1}{2N} \sum_{n=1}^{N} ||\hat{y}_n-y_n||^2_2
+	\end{equation}
+	
+	Fortunately, this is the functionality offered out-of-the box by Caffe's default Euclidean Loss Layer. Ideally, we would then expect the loss layer to minimize the difference between the dual convolutional layers, and let the net2 loss force convergence with respect to the true image labels. After giving the approach a go, however, some very interesting insights have been discovered.
+		
+	\subsection{Default Euclidean Loss Layer in practice}
+	
+	Both of the training losses computed throughout training seemed to be very volatile. Before we jump into the exact analysis of the problem, though, let's revisit the idea of the stochastic gradient descent. The gradient of the loss function computed by SGD is based on a random sample of the training set, which in our case is 256 images out of 10,000. This is clearly not representative of the whole population on its own, however over many iterations it should converge to a representative average. This is precisely what happens in our case. The losses computed after each iteration seem volatile, however over many iterations they do exhibit convergence. The stochastic batches we use for updating the loss are big enough for global minimization over a long time, but too small to produce a consistent trend at every iteration. This should not be a concern, though, as long as the general trend is visible.
+	
+	The point above concerns both net1 and net2, however it is clearly more pronounced in the latter, hence more consideration is given into the possible explanations. Due to the nature of the algorithm, we are building up gradually more volatile calculations, hence the loss of net2 can be expected to vary more. In particular, it should be noted that the input of net2 is not constant, but varying with every iteration adding to the overall volatility.
+	
+	After all, both of the nets seemed to be converging, which can be clearly seen in figure \ref{fig:default_losses}. After more tests were carried out, however, it seemed that the convergence of net2's loss is rather dubious. The results weren't always repeatable, and even the "successful" cases have confirmed that local variance in the loss computations was bigger than the overall convergence trend.
 	
 	\begin{figure}[!h]
 		\centering
 		\includegraphics[page=1,width=0.9\textwidth]{losses.png}
-		\caption{\label{fig:losses}{The training losses for the prototype framework.}}
+		\caption{\label{fig:default_losses}{The training losses for the prototype framework.}}
 	\end{figure}
+	
+	The pessimistic conclusions were further confirmed by running a classification task using a trained model. Out of a 1000 test samples, only about 100 were classified correctly. 1 in 10. This was suspiciously close to the number of image classes, which suggested that our method is virtually equivalent to random guessing.
+	
+	After setting up more probing mechanisms within the code an interesting pattern was spotted. As the training progressed, the convolutional layers produced consecutively smaller data i.e. the norm of the output matrices decreased with every iteration. The reason for this is apparent when we try to understand the objective of the loss layer - \textbf{to minimize the difference between the two convolutional layers}. What does that mean? That we are either going to:
+	\begin{enumerate}
+		\item Force the values of the convolutional layers' outputs close together.
+		\item Make the outputs small enough that no matter what the relative difference between them is, the absolute one is going to be tiny!
+	\end{enumerate} 
+	
+	The second point explains the exponentially decreasing net1 loss in figure \ref{fig:default_losses}. At the end of the training, all that the network produces is matrices of zeroes, which are indeed close to each other, but do not satisfy our second training objective - to get closer to the correct classification.
+	
+	Some mechanism had to be put in place which would inhibit the layer from optimizing its objective by simply making all of the values tiny. That mechanism is normalization - we do not want the absolute value of the conv layers' difference to be small - we just want it to decrease relative to what the current norm size of the layers is.
+	
+	\subsection{Custom Euclidean Loss Layer}
+	
+	None of the built-in Caffe mechanism allowed for introducing a normalization term to the euclidean loss. Fortunately, Caffe does allow for custom layer creation which made it possible to define a \textbf{Euclidean Loss Layer with Normalization}.
+	
+	Conveniently, the examples online (\cite{caffe2016loss}) provided a custom python implementation of the Euclidean Loss Layer analysed before. It was decided to first contrast the performance of the layer found online in order to build the normalized loss layer on a proven baseline. The below code listing shows the parameter update step during forward propagation of the network.\\
+	
+	\begin{lstlisting}
+	def forward(self, bottom, top):
+	    self.diff[...] = bottom[0].data - bottom[1].data
+	    top[0].data[...] = np.sqrt(np.sum(self.diff**2)) / bottom[0].num / 2.
+	\end{lstlisting}
+	
+	The results were again very interesting. The second convergence objective was clearly satisfied - the classification loss was decreasing with every iteration, which brought us a step closer to competing with a singular topology. What was worrying, though, that the first convergence objective wasn't satisfied at all - no decreasing trend could have been identified in the training loss of the first part of the network. This is clearly seen in the figure \ref{fig:incorrect_custom_training} below.
+	
+	\begin{figure}[!h]
+		\centering
+		\includegraphics[page=1,width=0.9\textwidth]{incorrect_custom_training.png}
+		\caption{\label{fig:incorrect_custom_training}{The losses for both of the networks during the first iteration of training using a custom Euclidean loss layer.}}
+	\end{figure}
+
+	To trace down the reason for net1's flat learning curve the gradients of the individual net parameters with respect to the overall loss were probed. Not surprisingly, it turned out that they were all zero, leading to virtually no learning. The reason for that turned out not to be architectural, but rather technical - the custom python layers in Caffe have to be identified in the training .prototxt file by annotating them with "loss\_weight: 1". Otherwise no backpropagation is ran any of the layers backing the final one. After fixing the technical inconsistency, backpropagation on all the appropriate layers was run and the gradients were indeed calculated correctly.
+	
+	What is interesting, though, is that the above setup, alas largely incorrect, achieved surprisingly high classification results. On a testing sample of a 1,000 images, it managed to correctly identify the labels of 52.53\% of them. This can be contrasted to the classification accuracy of 63.75\% of the single network setup.
+	
+	The impressive conclusion from the above is that since the bottom part of the dual network was virtually useless (its loss was constant throughout the training), all learning has occured in the latter part i.e. only using one convolutional layer. This is truly remarkable, given how close the classification accuracy was to the fully-leveraged single-net architecture.
+	
+	Even though the architecture was imperfect, it was decided to test the network with big data batches and compare their size to the maximum that can be fitted on the singular network topology.
+	
+	\subsection{Big batch}
+	
+	To run the tests, the batch size was increased to twice its previous size every time until it filled up the memory of the GPU completely. It turned out that:
+	\begin{itemize}
+		\item The biggest batch size that can be fitted on the single net topology is 2608 samples.
+		\item The biggest batch size that can be fitted on the dual net topology is 4095 samples.
+	\end{itemize}
+	
+	These results are outstanding - by breaking down the network between two units, we were able to increase the amount of data that can be processed on them together by a factor of two.
+	
+	The significance of these results can be explained in terms of several deep learning facts:
+	\begin{enumerate}
+		\item A bigger mini-batch helps to streamline the calculations executed with every training iteration. In simple terms, comparable convergence of a network using only one image in a batch will take N times longer than training of an identical network with a mini-batch size of N. \\ In theory, the same number of operations is going to be performed. The computational cost of multiplying big matrices is however smaller than the cost of doing those operations during separate iterations. Additionally, less time is spent on propagating the results throughout the network i.e. fewer forward- and backpropagations are concluded before convergence.
+		\item Regardless of the batch size, one certain conclusion is that we can fit a lot more data on the network. An alternative to increasing the batch size is increasing the number of convolutional layers. This can prospectively lead to higher classification results, because exponentially more complex functions can be learnt with incrementally increasing network sizes.
+	\end{enumerate}
+
+	\begin{figure}[!h]
+		\centering
+		\includegraphics[page=1,width=0.9\textwidth]{big_batch.png}
+		\caption{\label{fig:big_batch}{Training curves of the single and dual network setup using maximum batch sizes (2608 samples in single and 4096 samples in dual).}}
+	\end{figure}
+
+	The figure \ref{fig:big_batch} shows the training curves for both of the network architectures using maximal mini-batch sizes. The learning curves are clearly smooth at times but also exhibit some spiking behaviour. This can be easily explained.
+	
+	The smoothness comes from low variance of the gradient calculations. The bigger the mini-batch, the more representative it is of the whole population, and hence it can guarantee very stable gradient descent.
+	
+	On the other hand, the stochasticity of the gradient descent is somewhat lost as the batch increases. The spikes occur because the loss function is getting trapped in local minima of the loss functions that would normally be quickly escaped fromt thanks to probabilistic choice of the samples forming the dataset.
+	
+	\subsection{Normalization term }
+	
+	It became very clear that the need for normalization of the training loss in net1 is compelling. The first approach to the loss normalization involved dividing it by the sum of the 2-norms of both of the convolutional layers. This can be neatly represented as:
+	
+	THIS IS PROBABLY WRONG
+	
+	\begin{equation}
+		E=\frac{1}{2N} \sum_{n=1}^{N} \frac{||\hat{y}_n-y_n||^2_2}{||\hat{y}||^2_2+||y||^2_2} 
+	\end{equation}
+	
+	It was hoped that the normalization term will make the loss values consistent, and then attempt to indeed minimize the difference between them instead of just bringing the absolute parameter values close to zero. As shown in figure \ref{fig:exploding_values}, this first attempt at normalization did not result in a significant improvement in performance. The loss values were indeed bounded to comparable values (the loss decrease was not exponential as before), but dropped to zero very quickly. After that, the outputs of the layers quickly overflowed. \\
+	
+	\begin{figure}[!h]
+		\centering
+		\includegraphics[page=1,width=0.9\textwidth]{exploding_values.png}
+		\caption{\label{fig:exploding_values}{It turned out that introducing the normalization term helped bound the loss values a little, but still led to very unstable behaviour afterwards}}
+	\end{figure}
+	
+	Figure \ref{fig:plus_equals} shows yet another variation on the testing parameters in order to find the error in the network architecture setup. The sign of the parameter update in each of the layers was flipped, as shown in the line 5 below: \\
+	
+	\begin{lstlisting}
+	# backprop and weight update
+	solver.net.backward()
+	for layer in solver.net.layers:
+	    for blob in layer.blobs:
+ 	        blob.data[...] += learningRate*blob.diff
+	\end{lstlisting}
+	
+	Not surprisingly, it resulted in network 1 loss increasing, which at least confirmed that the parameter update was in the right direction. What was surprising, though, was that the image classification loss did exhibit a decrease, before it exploded into highly overflown numbers.
+	
+	\begin{figure}[!h]
+		\centering
+ 		\includegraphics[page=1,width=0.9\textwidth]{plus_equals.png}
+		\caption{\label{fig:plus_equals}{In the pursuit of the errors, several different network setups were tested. This one involved changing the sign of the gradient addition.}}
+	\end{figure}
+	
+	\subsection{Learning rate}
+	
+	In the pursuit of a solution to the dual convergence problem many attempts were made at adjusting the model parameters in order to achieve more promising results. One to which the convergence seemed particularly sensitive was, not surprisingly, the learning rate. While researching the possible explanations for devastatingly rapid convergence or increasing loss function, many specialist forums suggested adjusting the learning rate as one of the main factors affecting the training. Sadly, in most of the cases the learning rate affected just that - the rate of learning, the speed at which our network is approaching the value it is converging to. Apart from a couple of extreme cases (not worth mentioning), varying the learning rate simply stretched or shrinked the learning curve across the iterations appropriately. This can be very vividly seen on figure \ref{fig:learning_rate_variation}, where the two networks were trained using the same parameters and under identical circumstances, save the learning rate which differed by a factor of a 100 between the two.
+	
+	\begin{figure}[!h]
+		\centering
+		\includegraphics[page=1,width=0.7\textwidth]{learning_rate_variation.pdf}
+		\caption{\label{fig:learning_rate_variation}{It is clear that in most of the cases varying the learning rate changed just that - the rate at which we are approaching convergence. The above nets were trained using the same parameters and under identical circumstances, save the learning rate which differed by a factor of a 100 between the two.}}
+	\end{figure}
+	
+	
+	
+	
+	
+	\newpage
+	\clearpage
+	\subsection{things to do in this report}
+	\begin{enumerate}
+		\item label listings]
+		\item download some python syntax coloring
+		\item swap the figures to something that is not crap
+		\item figure out the right formulae for normalization
+		\item up to normalization part, everything should be okay. Later it's wild
+	\end{enumerate}
+	
 	
 	\newpage
 	

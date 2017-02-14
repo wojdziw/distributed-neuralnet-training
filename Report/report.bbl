@@ -31,11 +31,18 @@ N.~Kruger, P.~Janssen, S.~Kalkan, M.~Lappe, A.~Leonardis, J.~Piater, A.~J.
 F.-F. Li, A.~Karpathy, and J.~Johnson.
 \newblock Cs231n convolutional neural networks for visual recognition.
 \newblock http://cs231n.github.io/convolutional-networks/ [Accessed:
-  23/3/2016].
+  23/9/2016].
 
 \bibitem{ng2015coursera}
 A.~Ng.
 \newblock Coursera: Machine learning.
 \newblock https://www.coursera.org/learn/machine-learning/.
+
+\bibitem{caffe2016loss}
+SOMEONE.
+\newblock Change me.
+\newblock
+  https://github.com/BVLC/caffe/blob/master/examples/pycaffe/layers/pyloss.py/
+  [Accessed: 9/2/2017].
 
 \end{thebibliography}

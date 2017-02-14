@@ -17,5 +17,14 @@
 \contentsline {subsection}{\numberline {7.2}Dataset}{18}
 \contentsline {subsection}{\numberline {7.3}Deep learning frameworks}{18}
 \contentsline {subsection}{\numberline {7.4}Caffe tricks and quirks}{19}
-\contentsline {section}{\numberline {8}The algorithm}{20}
+\contentsline {section}{\numberline {8}The algorithm}{21}
 \contentsline {section}{\numberline {9}Testing}{22}
+\contentsline {section}{\numberline {10}Technical difficulties}{22}
+\contentsline {subsection}{\numberline {10.1}Two objectives}{23}
+\contentsline {subsection}{\numberline {10.2}Net 1 loss}{24}
+\contentsline {subsection}{\numberline {10.3}Default Euclidean Loss Layer in practice}{24}
+\contentsline {subsection}{\numberline {10.4}Custom Euclidean Loss Layer}{26}
+\contentsline {subsection}{\numberline {10.5}Big batch}{28}
+\contentsline {subsection}{\numberline {10.6}Normalization term }{30}
+\contentsline {subsection}{\numberline {10.7}Learning rate}{31}
+\contentsline {subsection}{\numberline {10.8}things to do in this report}{34}

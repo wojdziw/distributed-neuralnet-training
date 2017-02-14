@@ -53,12 +53,32 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Dataset}{18}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.3}Deep learning frameworks}{18}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {7.4}Caffe tricks and quirks}{19}}
-\@writefile{toc}{\contentsline {section}{\numberline {8}The algorithm}{20}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}The algorithm}{21}}
 \@writefile{lof}{\contentsline {figure}{\numberline {8.1}{\ignorespaces {The algorithm used for dual network training.}\relax }}{21}}
 \newlabel{fig:algorithm}{{8.1}{21}}
 \@writefile{toc}{\contentsline {section}{\numberline {9}Testing}{22}}
-\@writefile{lof}{\contentsline {figure}{\numberline {9.1}{\ignorespaces {The training losses for the prototype framework.}\relax }}{23}}
-\newlabel{fig:losses}{{9.1}{23}}
+\@writefile{toc}{\contentsline {section}{\numberline {10}Technical difficulties}{22}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.1}Two objectives}{23}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.2}Net 1 loss}{24}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.3}Default Euclidean Loss Layer in practice}{24}}
+\citation{caffe2016loss}
+\@writefile{lof}{\contentsline {figure}{\numberline {10.1}{\ignorespaces {The training losses for the prototype framework.}\relax }}{26}}
+\newlabel{fig:default_losses}{{10.1}{26}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.4}Custom Euclidean Loss Layer}{26}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10.2}{\ignorespaces {The losses for both of the networks during the first iteration of training using a custom Euclidean loss layer.}\relax }}{27}}
+\newlabel{fig:incorrect_custom_training}{{10.2}{27}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.5}Big batch}{28}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10.3}{\ignorespaces {Training curves of the single and dual network setup using maximum batch sizes (2608 samples in single and 4096 samples in dual).}\relax }}{29}}
+\newlabel{fig:big_batch}{{10.3}{29}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.6}Normalization term }{30}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10.4}{\ignorespaces {It turned out that introducing the normalization term helped bound the loss values a little, but still led to very unstable behaviour afterwards}\relax }}{31}}
+\newlabel{fig:exploding_values}{{10.4}{31}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.7}Learning rate}{31}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10.5}{\ignorespaces {In the pursuit of the errors, several different network setups were tested. This one involved changing the sign of the gradient addition.}\relax }}{32}}
+\newlabel{fig:plus_equals}{{10.5}{32}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10.6}{\ignorespaces {It is clear that in most of the cases varying the learning rate changed just that - the rate at which we are approaching convergence. The above nets were trained using the same parameters and under identical circumstances, save the learning rate which differed by a factor of a 100 between the two.}\relax }}{33}}
+\newlabel{fig:learning_rate_variation}{{10.6}{33}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.8}things to do in this report}{34}}
 \bibdata{bib}
 \bibcite{chilimbi2014project}{1}
 \bibcite{ciresan2010deep}{2}
@@ -66,4 +86,5 @@
 \bibcite{kruger2013deep}{4}
 \bibcite{stanford2016convnets}{5}
 \bibcite{ng2015coursera}{6}
+\bibcite{caffe2016loss}{7}
 \bibstyle{abbrv}

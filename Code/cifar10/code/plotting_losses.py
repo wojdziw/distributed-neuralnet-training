@@ -14,7 +14,7 @@ if printDual:
 
 	plt.figure(1)
 
-	plt.subplot(311)
+	plt.subplot(211)
 	plt.plot(x, y1)
 	plt.yscale('linear')
 	#plt.ylim(25000,30000)
@@ -22,25 +22,25 @@ if printDual:
 	plt.grid(True)
 
 
-	plt.subplot(312)
+	plt.subplot(212)
 	plt.plot(x, y2)
 	plt.yscale('linear')
-	plt.ylim(0.5, 3)
+	#plt.ylim(80,90)
 	plt.title('Net2 losses', fontsize=10)
 	plt.grid(True)
 
-if printSingle:
-
-	y3 = np.load("../models/snapshots/net12_losses.npy")
-
-	x = range(y3.shape[0])
-
-	plt.subplot(313)
-	plt.plot(x, y3)
-	plt.yscale('linear')
-	plt.ylim(0.5, 3)
-	plt.title('Net12 losses', fontsize=10)
-	plt.grid(True)
+# if printSingle:
+#
+# 	y3 = np.load("../models/snapshots/net12_losses.npy")
+#
+# 	x = range(y3.shape[0])
+#
+# 	plt.subplot(313)
+# 	plt.plot(x, y3)
+# 	plt.yscale('linear')
+# 	plt.ylim(0.5, 3)
+# 	plt.title('Net12 losses', fontsize=10)
+# 	plt.grid(True)
 
 # plt.show()
 plt.savefig('../images/losses.png', fontsize=10)
