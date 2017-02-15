@@ -511,7 +511,7 @@
 	
 	Deep neural networks, particularly as implemented by one of the modern frameworks, often involve a complex programmatic setup. In our case, an additional level of complexity is introduced by the fact that the network topology is divided between several computational units. All of this results in a very high sensitivity of the model to the input parameters, and further emphasises the need for meticulous planning and thorough understanding of the framework at hand. Naturally, both come easier with sufficient practice and a fair bit of heuristic trialling which became a significant part of the project. The next few sections will present the variability of the model with respect to some of the parameters and will then progress to describe the testing of the dual setup with various parameter combinations.
 	
-	\section{Technical difficulties}
+	\subsection{Technical difficulties}
 	
 	Naturally, many problems were encounted before the network started exhibiting the desired behaviour. Most of them were linked to the issues described in an earlier section, namely:
 	
@@ -561,12 +561,12 @@
 	
 	The point above concerns both net1 and net2, however it is clearly more pronounced in the latter, hence more consideration is given into the possible explanations. Due to the nature of the algorithm, we are building up gradually more volatile calculations, hence the loss of net2 can be expected to vary more. In particular, it should be noted that the input of net2 is not constant, but varying with every iteration adding to the overall volatility.
 	
-	After all, both of the nets seemed to be converging, which can be clearly seen in figure \ref{fig:default_losses}. After more tests were carried out, however, it seemed that the convergence of net2's loss is rather dubious. The results weren't always repeatable, and even the "successful" cases have confirmed that local variance in the loss computations was bigger than the overall convergence trend.
+	After all, both of the nets seemed to be converging, which can be clearly seen in figure \ref{fig:first_try}. After more tests were carried out, however, it seemed that the convergence of net2's loss is rather dubious. The results weren't always repeatable, and even the "successful" cases have confirmed that local variance in the loss computations was bigger than the overall convergence trend.
 	
 	\begin{figure}[!h]
 		\centering
-		\includegraphics[page=1,width=0.9\textwidth]{losses.png}
-		\caption{\label{fig:default_losses}{The training losses for the prototype framework.}}
+		\includegraphics[page=1,width=0.9\textwidth]{first_try.png}
+		\caption{\label{fig:first_try}{The training losses for the prototype framework.}}
 	\end{figure}
 	
 	The pessimistic conclusions were further confirmed by running a classification task using a trained model. Out of a 1000 test samples, only about 100 were classified correctly. 1 in 10. This was suspiciously close to the number of image classes, which suggested that our method is virtually equivalent to random guessing.
@@ -587,7 +587,7 @@
 	
 	Conveniently, the examples online (\cite{caffe2016loss}) provided a custom python implementation of the Euclidean Loss Layer analysed before. It was decided to first contrast the performance of the layer found online in order to build the normalized loss layer on a proven baseline. The below code listing shows the parameter update step during forward propagation of the network.\\
 	
-	\begin{lstlisting}
+	\begin{lstlisting}[caption={Defining the loss in a custom loss layer.}\label{lst:custom_loss},language=Python]
 	def forward(self, bottom, top):
 	    self.diff[...] = bottom[0].data - bottom[1].data
 	    top[0].data[...] = np.sqrt(np.sum(self.diff**2)) / bottom[0].num / 2.
@@ -637,6 +637,16 @@
 	
 	On the other hand, the stochasticity of the gradient descent is somewhat lost as the batch increases. The spikes occur because the loss function is getting trapped in local minima of the loss functions that would normally be quickly escaped fromt thanks to probabilistic choice of the samples forming the dataset.
 	
+	\subsection{Corrected custom setup}
+	
+	Once the error was identified, and the "loss\_weight: 1" term was added to the prototxt file, the setup was ready for the testing using the corrected custom loss layer. To first confirm that it is consistent with the default Euclidean Loss Layer used in the training before (fig. \ref{fig:first_try}), the custom layer was used in its default state, without any normalization terms introduced just yet. The result is presented in figure \ref{fig:second_try}. It can be observed that the loss trends are similar to the ones exhibited by the Caffe default setup. Admittedly, it is even smoother and more predictable, which constitutes an easily-interpretable baseline result that can be used for comparison later.
+	
+	\begin{figure}[!h]
+		\centering
+		\includegraphics[page=1,width=0.9\textwidth]{second_try.png}
+		\caption{\label{fig:second_try}{The training losses with the "default" custom layer in place.}}
+	\end{figure}
+
 	\subsection{Normalization term }
 	
 	It became very clear that the need for normalization of the training loss in net1 is compelling. The first approach to the loss normalization involved dividing it by the sum of the 2-norms of both of the convolutional layers. This can be neatly represented as:
@@ -649,15 +659,15 @@
 	
 	It was hoped that the normalization term will make the loss values consistent, and then attempt to indeed minimize the difference between them instead of just bringing the absolute parameter values close to zero. As shown in figure \ref{fig:exploding_values}, this first attempt at normalization did not result in a significant improvement in performance. The loss values were indeed bounded to comparable values (the loss decrease was not exponential as before), but dropped to zero very quickly. After that, the outputs of the layers quickly overflowed. \\
 	
-	\begin{figure}[!h]
+	\begin{figure}[!hb]
 		\centering
 		\includegraphics[page=1,width=0.9\textwidth]{exploding_values.png}
 		\caption{\label{fig:exploding_values}{It turned out that introducing the normalization term helped bound the loss values a little, but still led to very unstable behaviour afterwards}}
 	\end{figure}
 	
-	Figure \ref{fig:plus_equals} shows yet another variation on the testing parameters in order to find the error in the network architecture setup. The sign of the parameter update in each of the layers was flipped, as shown in the line 5 below: \\
+	Figure \ref{fig:plus_equals} shows yet another variation on the testing parameters in order to find the error in the network architecture setup. The sign of the parameter update in each of the layers was flipped, as shown in the line 5 in listing \ref{lst:modified_update}. \\
 	
-	\begin{lstlisting}
+	\begin{lstlisting}[caption={Modified parameter update routine}\label{lst:modified_update},language=Python]
 	# backprop and weight update
 	solver.net.backward()
 	for layer in solver.net.layers:
