@@ -10,8 +10,8 @@ caffe.set_device(GPU_ID)
 solver = caffe.get_solver('../models/net1_solver.prototxt')
 
 maxIter = 2000
-stepPerIter = 1
-learningRate = 0.00000001
+epochIter = 100
+learningRate = 0.0000000001
 
 losses = np.zeros(maxIter)
 ithoughtlosses = np.zeros(maxIter)
@@ -23,17 +23,29 @@ net2_iteration = -1
 
 for net1_iteration in range(maxIter):
 
-	# if (net2_iteration>210 and net2_iteration<410) or (net2_iteration>610 and net2_iteration<810) or (net2_iteration>1010 and net2_iteration<1210) or (net2_iteration>1410 and net2_iteration<1610) or (net2_iteration>1810 and net2_iteration<2010):
-	# 	print "Iteration " + str(net1_iteration) + ": idling"
-	# 	solver.net.forward()
-	#
-	# 	labels = solver.net.blobs['label'].data
-	# 	data_pool2 = solver.net.blobs['pool2'].data
-	#
-	# 	np.save('../comms/data_pool2', data_pool2)
-	# 	np.save('../comms/net1_iteration', net1_iteration)
-	# 	np.save('../comms/net1_labels', labels)
-	# 	continue
+	if ((max(0,net1_iteration-10)/epochIter)%2==1):
+		print "Iteration " + str(net1_iteration) + ": idling"
+		solver.net.forward()
+
+		labels = solver.net.blobs['label'].data
+		data_pool2 = solver.net.blobs['pool2'].data
+
+		np.save('../comms/data_pool2', data_pool2)
+		np.save('../comms/net1_iteration', net1_iteration)
+		np.save('../comms/net1_labels', labels)
+
+		while(net1_iteration != net2_iteration):
+			time.sleep(5)
+			print "waiting..."
+			try:
+				net2_iteration = int(np.load("../comms/net2_iteration.npy"))
+			except:
+				pass
+
+		losses[net1_iteration] = float(solver.net.blobs['loss'].data)
+		np.save('../models/snapshots/net1_losses', losses)
+
+		continue
 
 	print "###############################"
 	print "Iteration " + str(net1_iteration) + ": starting..."

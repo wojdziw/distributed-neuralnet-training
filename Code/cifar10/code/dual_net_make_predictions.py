@@ -40,7 +40,7 @@ net1 = caffe.Net('../models/net1_deploy_def.prototxt',
                 caffe.TEST)
 
 net2 = caffe.Net('../models/net2_deploy_def.prototxt',
-                '../models/snapshots/net2_iter_600.caffemodel',
+                '../models/snapshots/net2_iter_800.caffemodel',
                 caffe.TEST)
 
 #Define image transformers

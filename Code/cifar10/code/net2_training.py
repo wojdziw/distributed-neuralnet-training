@@ -10,7 +10,7 @@ caffe.set_device(GPU_ID)
 solver = caffe.SGDSolver('../models/net2_solver.prototxt')
 
 maxIter = 2000
-epochIter = 200
+epochIter = 100
 noEpochs = 10
 
 losses = np.zeros(maxIter)
@@ -21,12 +21,24 @@ np.save('../comms/net2_iteration', -1)
 
 for net2_iteration in range(maxIter):
 
-	# if (net2_iteration>10 and net2_iteration<210) or (net2_iteration>410 and net2_iteration<610) or (net2_iteration>810 and net2_iteration<1010) or (net2_iteration>1210 and net2_iteration<1410) or (net2_iteration>1610 and net2_iteration<1810):
-	# 	print "Iteration " + str(net2_iteration) + ": idling"
-	# 	data_conv3p = solver.net.blobs['conv3p'].data
-	# 	np.save("../comms/data_conv3p", data_conv3p)
-	# 	np.save('../comms/net2_iteration', net2_iteration)
-	# 	continue
+	if ((max(0,net2_iteration-10)/epochIter)%2==0 and net2_iteration>=10):
+		print "Iteration " + str(net2_iteration) + ": idling"
+
+		while(net1_iteration != net2_iteration):
+			# tiny delay to prevent accessing an open file
+			time.sleep(5)
+			print "waiting..."
+			try:
+				net1_iteration = int(np.load("../comms/net1_iteration.npy"))
+			except:
+				pass
+
+		data_conv3p = solver.net.blobs['conv3p'].data
+		np.save("../comms/data_conv3p", data_conv3p)
+		np.save('../comms/net2_iteration', net2_iteration)
+		losses[net2_iteration] = float(solver.net.blobs['loss'].data)
+		np.save('../models/snapshots/net2_losses', losses)
+		continue
 
 	print "###############################"
 	print "Iteration " + str(net2_iteration) + ": starting..."
@@ -84,4 +96,5 @@ for net2_iteration in range(maxIter):
 
 	print "Iteration " + str(net2_iteration) + ": net1 back pass finish"
 
+	losses[net2_iteration] = float(solver.net.blobs['loss'].data)
 	np.save('../models/snapshots/net2_losses', losses)

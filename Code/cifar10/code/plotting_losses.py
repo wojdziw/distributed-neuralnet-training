@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib
 import os.path
 
 printDual = os.path.isfile("../models/snapshots/net1_losses.npy")
