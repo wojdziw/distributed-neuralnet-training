@@ -8,9 +8,10 @@ caffe.set_mode_gpu()
 caffe.set_device(GPU_ID)
 
 solver = caffe.SGDSolver('../models/net2_solver.prototxt')
-maxIter = 1000
-stepPerIter = 1
-learningRate = 0.00000001
+
+maxIter = 2000
+epochIter = 200
+noEpochs = 10
 
 losses = np.zeros(maxIter)
 
@@ -19,6 +20,13 @@ np.save('../comms/net1_iteration', net1_iteration)
 np.save('../comms/net2_iteration', -1)
 
 for net2_iteration in range(maxIter):
+
+	# if (net2_iteration>10 and net2_iteration<210) or (net2_iteration>410 and net2_iteration<610) or (net2_iteration>810 and net2_iteration<1010) or (net2_iteration>1210 and net2_iteration<1410) or (net2_iteration>1610 and net2_iteration<1810):
+	# 	print "Iteration " + str(net2_iteration) + ": idling"
+	# 	data_conv3p = solver.net.blobs['conv3p'].data
+	# 	np.save("../comms/data_conv3p", data_conv3p)
+	# 	np.save('../comms/net2_iteration', net2_iteration)
+	# 	continue
 
 	print "###############################"
 	print "Iteration " + str(net2_iteration) + ": starting..."
@@ -29,24 +37,20 @@ for net2_iteration in range(maxIter):
 		# tiny delay to prevent accessing an open file
 		time.sleep(5)
 		print "waiting..."
-		if os.path.exists("../comms/net1_iteration.npy"):
-			try:
-				net1_iteration = int(np.load("../comms/net1_iteration.npy"))
-			except:
-				pass
+		try:
+			net1_iteration = int(np.load("../comms/net1_iteration.npy"))
+		except:
+			pass
 
 	# loading the parameters from net1
-	data_pool2 = np.load("../comms/data_pool2.npy")
-	labels = np.load("../comms/net1_labels.npy")
-
-	# copying the new parameters into the data layers
-	# copying the net1 output into data of net 2
-	#for i in range(data_pool2.shape[0]):
-		#solver.net.blobs['data2'].data[i] = data_pool2[i]
-
-	# copying the labels
-	#for i in range(len(labels)):
-		#solver.net.blobs['label'].data[i] = labels[i]
+	while True:
+		try:
+			data_pool2 = np.load("../comms/data_pool2.npy")
+			labels = np.load("../comms/net1_labels.npy")
+		except:
+			pass
+		else:
+			break
 
 	net = solver.net
 	net.set_input_arrays(data_pool2,labels)
@@ -57,13 +61,6 @@ for net2_iteration in range(maxIter):
 
 	# run forward and back prop
 	solver.step(1)
-	'''
-	solver.net.forward()
-        solver.net.backward()
-        for layer in solver.net.layers:
-                for blob in layer.blobs:
-                        blob.data[...] -= learningRate*blob.diff
-	'''
 
 	# data computed by each of the layers
 	data_input = solver.net.blobs['data2'].data

@@ -9,9 +9,9 @@ caffe.set_device(GPU_ID)
 
 solver = caffe.get_solver('../models/net1_solver.prototxt')
 
-maxIter = 1000
+maxIter = 2000
 stepPerIter = 1
-learningRate = 0.000001
+learningRate = 0.00000001
 
 losses = np.zeros(maxIter)
 ithoughtlosses = np.zeros(maxIter)
@@ -19,11 +19,21 @@ conv1sum = np.zeros(maxIter)
 conv3sum = np.zeros(maxIter)
 conv3psum = np.zeros(maxIter)
 
-
-
 net2_iteration = -1
 
 for net1_iteration in range(maxIter):
+
+	# if (net2_iteration>210 and net2_iteration<410) or (net2_iteration>610 and net2_iteration<810) or (net2_iteration>1010 and net2_iteration<1210) or (net2_iteration>1410 and net2_iteration<1610) or (net2_iteration>1810 and net2_iteration<2010):
+	# 	print "Iteration " + str(net1_iteration) + ": idling"
+	# 	solver.net.forward()
+	#
+	# 	labels = solver.net.blobs['label'].data
+	# 	data_pool2 = solver.net.blobs['pool2'].data
+	#
+	# 	np.save('../comms/data_pool2', data_pool2)
+	# 	np.save('../comms/net1_iteration', net1_iteration)
+	# 	np.save('../comms/net1_labels', labels)
+	# 	continue
 
 	print "###############################"
 	print "Iteration " + str(net1_iteration) + ": starting..."
@@ -60,11 +70,10 @@ for net1_iteration in range(maxIter):
 	while(net1_iteration != net2_iteration):
 		time.sleep(5)
 		print "waiting..."
-		if os.path.exists("../comms/net2_iteration.npy"):
-			try:
-				net2_iteration = int(np.load("../comms/net2_iteration.npy"))
-			except:
-				pass
+		try:
+			net2_iteration = int(np.load("../comms/net2_iteration.npy"))
+		except:
+			pass
 
 	print "Iteration " + str(net1_iteration) + ": net2 forward and back pass finish"
 
@@ -72,13 +81,19 @@ for net1_iteration in range(maxIter):
 
 
 	# load the data produced by the second net
-	net2_data = np.load("../comms/data_conv3p.npy")
+	while True:
+		try:
+			net2_data = np.load("../comms/data_conv3p.npy")
+		except:
+			pass
+		else:
+			break
 
 	# copying the output of net2 to net1
 	for i in range(data_conv3p.shape[0]):
 		solver.net.blobs['conv3p'].data[i] = net2_data[i]
 
-	# not sure how to only do backprop so that everything is updated properly but hope this works
+	# backprop and weight update
 	solver.net.backward()
 	for layer in solver.net.layers:
     		for blob in layer.blobs:
@@ -89,7 +104,7 @@ for net1_iteration in range(maxIter):
 	conv3sum[net1_iteration] = np.sum(solver.net.blobs['conv3'].data)
 
 	difference = solver.net.blobs['conv3p'].data-solver.net.blobs['conv3'].data
-	loss = np.sum(difference**2)/solver.net.blobs['conv3p'].num/2
+	loss = np.sqrt(np.sum(difference**2))/solver.net.blobs['conv3p'].num/2.
 
 	# save the value of the loss
 	losses[net1_iteration] = float(solver.net.blobs['loss'].data)

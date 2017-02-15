@@ -36,11 +36,11 @@ def transform_img(img, img_width=IMAGE_WIDTH, img_height=IMAGE_HEIGHT):
 
 #Read model architecture and trained model's weights
 net1 = caffe.Net('../models/net1_deploy_def.prototxt',
-                '../models/snapshots/net1_iter_900.caffemodel',
+                '../models/snapshots/net1_iter_600.caffemodel',
                 caffe.TEST)
 
 net2 = caffe.Net('../models/net2_deploy_def.prototxt',
-                '../models/snapshots/net2_iter_900.caffemodel',
+                '../models/snapshots/net2_iter_600.caffemodel',
                 caffe.TEST)
 
 #Define image transformers
@@ -61,7 +61,7 @@ noCorrect = 0.0
 #Making predictions
 test_ids = []
 preds = []
-noAnalysed = 10000 #len(test_img_paths)
+noAnalysed = 1000 #len(test_img_paths)
 
 for i in range(noAnalysed):
     if i%5 == 0:

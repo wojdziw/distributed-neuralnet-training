@@ -3,10 +3,6 @@ import numpy as np
 
 
 class EuclideanLossLayer(caffe.Layer):
-    """
-    Compute the Euclidean Loss in the same manner as the C++ EuclideanLossLayer
-    to demonstrate the class interface for developing layers in Python.
-    """
 
     def setup(self, bottom, top):
         # check input pair
@@ -22,11 +18,21 @@ class EuclideanLossLayer(caffe.Layer):
         # loss output is scalar
         top[0].reshape(1)
 
+
+    def forward(self, bottom, top):
+        self.diff[...] = (bottom[0].data - bottom[1].data) / np.sqrt(np.sum(bottom[0].data**2)+np.sum(bottom[1].data**2))
+        # because I'm squaring the denominator of the line above, I need to multiply it again here
+        #top[0].data[...] = np.sqrt(np.sum(self.diff**2)) * np.sqrt(np.sum(bottom[0].data**2)+np.sum(bottom[1].data**2)) / bottom[0].num / 2.
+        top[0].data[...] = np.sum(self.diff**2) * np.sqrt(np.sum(bottom[0].data**2)+np.sum(bottom[1].data**2)) / bottom[0].num / 2.
+    '''
     def forward(self, bottom, top):
         self.diff[...] = bottom[0].data - bottom[1].data
-        top[0].data[...] = np.sqrt(np.sum(self.diff**2)) / bottom[0].num / 2.
+        top[0].data[...] = np.sum(self.diff**2) / bottom[0].num / 2.
+    '''
+
 
     def backward(self, top, propagate_down, bottom):
+        # range 2 because I have two bottoms
         for i in range(2):
             if not propagate_down[i]:
                 continue
