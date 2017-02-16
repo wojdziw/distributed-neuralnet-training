@@ -9,30 +9,25 @@ caffe.set_device(GPU_ID)
 
 solver = caffe.get_solver('../models/net1_solver.prototxt')
 
-maxIter = 2000
 epochIter = 100
-learningRate = 0.0000000001
+noEpochs = 20
+learningRate = 0.00000000001
 
-losses = np.zeros(maxIter)
-ithoughtlosses = np.zeros(maxIter)
-conv1sum = np.zeros(maxIter)
-conv3sum = np.zeros(maxIter)
-conv3psum = np.zeros(maxIter)
-
+losses = np.zeros(epochIter*noEpochs)
 net2_iteration = -1
 
-for net1_iteration in range(maxIter):
+for net1_iteration in range(noEpochs*epochIter):
+
+	solver.net.forward()
+
+	labels = solver.net.blobs['label'].data
+	data_pool2 = solver.net.blobs['pool2'].data
+	np.save('../comms/data_pool2', data_pool2)
+	np.save('../comms/net1_iteration', net1_iteration)
+	np.save('../comms/net1_labels', labels)
 
 	if ((max(0,net1_iteration-10)/epochIter)%2==1):
 		print "Iteration " + str(net1_iteration) + ": idling"
-		solver.net.forward()
-
-		labels = solver.net.blobs['label'].data
-		data_pool2 = solver.net.blobs['pool2'].data
-
-		np.save('../comms/data_pool2', data_pool2)
-		np.save('../comms/net1_iteration', net1_iteration)
-		np.save('../comms/net1_labels', labels)
 
 		while(net1_iteration != net2_iteration):
 			time.sleep(5)
@@ -42,95 +37,43 @@ for net1_iteration in range(maxIter):
 			except:
 				pass
 
-		losses[net1_iteration] = float(solver.net.blobs['loss'].data)
-		np.save('../models/snapshots/net1_losses', losses)
+	else:
+		data_conv3p = solver.net.blobs['conv3p'].data
 
-		continue
+		# check if net2 has finished its computation
+		while(net1_iteration != net2_iteration):
+			time.sleep(5)
+			print "waiting..."
+			try:
+				net2_iteration = int(np.load("../comms/net2_iteration.npy"))
+			except:
+				pass
 
-	print "###############################"
-	print "Iteration " + str(net1_iteration) + ": starting..."
-	print "Iteration " + str(net1_iteration) + ": net1 forward pass start"
+		# load the data produced by the second net
+		while True:
+			try:
+				net2_data = np.load("../comms/data_conv3p.npy")
+			except:
+				pass
+			else:
+				break
 
-	solver.net.forward()
+		# copying the output of net2 to net1
+		for i in range(data_conv3p.shape[0]):
+			solver.net.blobs['conv3p'].data[i] = net2_data[i]
 
-	image_data = solver.net.blobs['data'].data
-	labels = solver.net.blobs['label'].data
-	data_conv1 = solver.net.blobs['conv1'].data
-	data_pool1 = solver.net.blobs['pool1'].data
-	data_conv2 = solver.net.blobs['conv2'].data
-	data_pool2 = solver.net.blobs['pool2'].data
-	data_conv3 = solver.net.blobs['conv3'].data
-	data_conv3p = solver.net.blobs['conv3p'].data
+		# backprop and weight update
+		solver.net.backward()
+		for layer in solver.net.layers:
+	    		for blob in layer.blobs:
+	        		blob.data[...] -= learningRate*blob.diff
 
-	print "----->>>> The sum of conv1 is: " + str(np.sum(solver.net.blobs['conv1'].data))
-	conv1sum[net1_iteration] = np.sum(solver.net.blobs['conv1'].data)
-
-	# save the output of the second convolutional layer (+pool) into a file
-	np.save('../comms/data_pool2', data_pool2)
-
-	# send net1 to net2 info to start its computation
-	np.save('../comms/net1_iteration', net1_iteration)
-
-	# send net1 labels to net2 to align the information
-	np.save('../comms/net1_labels', labels)
-
-	print "Iteration " + str(net1_iteration) + ": net1 forward pass finish"
-
-	print "Iteration " + str(net1_iteration) + ": net2 forward and back pass start"
-
-	# check if net2 has finished its computation
-	while(net1_iteration != net2_iteration):
-		time.sleep(5)
-		print "waiting..."
-		try:
-			net2_iteration = int(np.load("../comms/net2_iteration.npy"))
-		except:
-			pass
-
-	print "Iteration " + str(net1_iteration) + ": net2 forward and back pass finish"
-
-	print "Iteration " + str(net1_iteration) + ": net1 back pass start"
-
-
-	# load the data produced by the second net
-	while True:
-		try:
-			net2_data = np.load("../comms/data_conv3p.npy")
-		except:
-			pass
-		else:
-			break
-
-	# copying the output of net2 to net1
-	for i in range(data_conv3p.shape[0]):
-		solver.net.blobs['conv3p'].data[i] = net2_data[i]
-
-	# backprop and weight update
-	solver.net.backward()
-	for layer in solver.net.layers:
-    		for blob in layer.blobs:
-        		blob.data[...] -= learningRate*blob.diff
-
-	print "----->>>> The sum of conv3p is: " + str(np.sum(solver.net.blobs['conv3p'].data))
-	conv3psum[net1_iteration] = np.sum(solver.net.blobs['conv3p'].data)
-	conv3sum[net1_iteration] = np.sum(solver.net.blobs['conv3'].data)
-
-	difference = solver.net.blobs['conv3p'].data-solver.net.blobs['conv3'].data
-	loss = np.sqrt(np.sum(difference**2))/solver.net.blobs['conv3p'].num/2.
 
 	# save the value of the loss
 	losses[net1_iteration] = float(solver.net.blobs['loss'].data)
-	ithoughtlosses[net1_iteration] = loss
-
-	print "Loss is: " + str(float(solver.net.blobs['loss'].data))
-	print "And I thought it would be:" + str(loss)
-	print "Iteration " + str(net1_iteration) + ": net1 back pass finish"
-
 	np.save('../models/snapshots/net1_losses', losses)
-	np.save('../models/snapshots/net1_perceived_losses', ithoughtlosses)
-	np.save('../models/snapshots/conv1sum', conv1sum)
-	np.save('../models/snapshots/conv3sum', conv3sum)
-	np.save('../models/snapshots/conv3psum', conv3psum)
+
+	print "Iteration " + str(net1_iteration) + "; Loss is: " + str(float(solver.net.blobs['loss'].data))
 
 	if net1_iteration%100==0: #and net1_iteration>0:
 		solver.net.save('../models/snapshots/net1_iter_'+str(net1_iteration)+'.caffemodel')
