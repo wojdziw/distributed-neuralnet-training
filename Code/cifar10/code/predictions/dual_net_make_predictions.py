@@ -35,12 +35,12 @@ def transform_img(img, img_width=IMAGE_WIDTH, img_height=IMAGE_HEIGHT):
     return img
 
 #Read model architecture and trained model's weights
-net1 = caffe.Net('../models/net1_deploy_def.prototxt',
-                '../models/snapshots/net1_iter_1900.caffemodel',
+net1 = caffe.Net('../../models/net1_deploy_def.prototxt',
+                '../../models/snapshots/net1_iter_1900.caffemodel',
                 caffe.TEST)
 
-net2 = caffe.Net('../models/net2_deploy_def.prototxt',
-                '../models/snapshots/net2_iter_1900.caffemodel',
+net2 = caffe.Net('../../models/net2_deploy_def.prototxt',
+                '../../models/snapshots/net2_iter_1900.caffemodel',
                 caffe.TEST)
 
 #Define image transformers
@@ -52,8 +52,8 @@ transformer2.set_transpose('data2', (2,0,1))
 
 
 #Reading image paths
-test_img_paths = [img_path for img_path in glob.glob("../input/test/*jpg")]
-test_img_labels = np.load("../input/test/labels.npy")
+test_img_paths = [img_path for img_path in glob.glob("../../input/test/*jpg")]
+test_img_labels = np.load("../../input/test/labels.npy")
 
 #Calculating the accuracy
 noCorrect = 0.0
@@ -75,13 +75,6 @@ for i in range(len(test_img_paths)):
     out = net1.forward()
     data_pool2 = net1.blobs['pool2'].data[0]
 
-    # multiply input by one of the images and see if it gives something out
-    #print net1.blobs['data'].data.shape
-    #print "###################################################"
-    #print net1.params['conv1'][0].data.shape
-    #print "###################################################"
-    #print np.sum(net1.blobs['conv1'].data)
-
     processedImage =  np.zeros([8,8,256])
 
     for j in range(256):
@@ -94,10 +87,6 @@ for i in range(len(test_img_paths)):
 
     preds = preds + [pred_probas.argmax()]
     img_number = img_path.split("img")[1].split(".")[0]
-
-    #print img_path
-    #print str(i) + " predicted label: " + str(pred_probas.argmax()) + ", true label: " + str(test_img_labels[int(img_number)][0])
-    #print '-------'
 
     if pred_probas.argmax() == test_img_labels[int(img_number)][0]:
         noCorrect += 1
