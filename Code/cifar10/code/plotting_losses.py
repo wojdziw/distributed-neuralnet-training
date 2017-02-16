@@ -32,7 +32,7 @@ if printDual:
 
 	plt.subplot(211)
 	plt.plot(x, y1)
-	plt.yscale('log')
+	plt.yscale('linear')
 	#plt.ylim(25000,30000)
 	plt.title('Dual net losses', fontsize=10)
 	plt.xlabel('number of iterations', fontsize=10)
