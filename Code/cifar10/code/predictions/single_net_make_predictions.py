@@ -37,8 +37,8 @@ def transform_img(img, img_width=IMAGE_WIDTH, img_height=IMAGE_HEIGHT):
 
 
 #Read model architecture and trained model's weights
-net = caffe.Net('../models/net12_deploy_def.prototxt',
-                '../models/snapshots/net12_iter_600.caffemodel',
+net = caffe.Net('../../models/net12_deploy_def.prototxt',
+                '../../models/snapshots/net12_iter_600.caffemodel',
                 caffe.TEST)
 
 #Define image transformers
@@ -69,14 +69,8 @@ for i in range(len(test_img_paths)):
     out = net.forward()
     pred_probas = out['prob']
 
-    #print net.blobs['conv1'].data[...]
-
     preds = preds + [pred_probas.argmax()]
     img_number = img_path.split("img")[1].split(".")[0]
-
-    #print img_path
-    #print str(i) + " predicted label: " + str(pred_probas.argmax()) + ", true label: " + str(test_img_labels[int(img_number)][0])
-    #print '-------'
 
     if pred_probas.argmax() == test_img_labels[int(img_number)][0]:
         noCorrect += 1

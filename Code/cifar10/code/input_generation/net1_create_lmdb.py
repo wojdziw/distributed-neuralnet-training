@@ -42,12 +42,11 @@ def make_datum(img, label, no_filters):
         label=label,
         data=np.rollaxis(img, 2).tostring())
 
-def create_lmdb(input_path, output_path, image_width, image_height, no_filters):
-
+def create_lmdb(labels_path, input_path, output_path, image_width, image_height, no_filters):
+    labels = np.load(labels_path)
     os.system('rm -rf  ' + output_path)
 
     data = [img for img in glob.glob(input_path)]
-    np.save('../comms/image_data', data)
 
     #Shuffle data
     random.shuffle(data)
@@ -57,13 +56,15 @@ def create_lmdb(input_path, output_path, image_width, image_height, no_filters):
         for in_idx, img_path in enumerate(data):
             if in_idx %  6 == 0:
                 continue
-            img = np.zeros([image_height, image_width, no_filters])
-	    #img = cv2.imread(img_path, cv2.IMREAD_COLOR)
-	    #img = transform_img(img, image_width, image_height)
+	    img = cv2.imread(img_path, cv2.IMREAD_COLOR)
+	    img = transform_img(img, image_width, image_height)
 
-            datum = make_datum(img, 1, no_filters)
+	    img_number = img_path.split("img")[1].split(".")[0]
+	    label = labels[int(img_number)][0]
+            datum = make_datum(img, label, no_filters)
             in_txn.put('{:0>5d}'.format(in_idx), datum.SerializeToString())
-            print '{:0>5d}'.format(in_idx) + ':' + img_path
+            if in_idx%500==0:
+		print '{:0>5d}'.format(in_idx) + ':' + img_path
     in_db.close()
 
     print '\nFinished processing all images'
@@ -71,7 +72,8 @@ def create_lmdb(input_path, output_path, image_width, image_height, no_filters):
     return 0
 
 #Size of images
-image_width = 8
-image_height = 8
-no_filters = 384
-create_lmdb("../input/train/*jpg","../input/net1_lmdb_conv3", image_width, image_height, no_filters)
+image_width = 32
+image_height = 32
+no_filters = 3
+create_lmdb("../../input/train/labels.npy","../../input/train/*jpg","../../input/net1_train_lmdb", image_width, image_height, no_filters)
+create_lmdb("../../input/test/labels.npy","../../input/test/*jpg","../../input/net1_test_lmdb", image_width, image_height, no_filters)
