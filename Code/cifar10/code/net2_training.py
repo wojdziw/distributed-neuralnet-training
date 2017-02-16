@@ -15,7 +15,7 @@ noEpochs = 20
 losses = np.zeros(epochIter*noEpochs)
 
 net1_iteration = -1
-np.save('../comms/net1_iteration', net1_iteration)
+np.save('../comms/net1_iteration', -1)
 np.save('../comms/net2_iteration', -1)
 
 for net2_iteration in range(epochIter*noEpochs):
@@ -60,8 +60,7 @@ for net2_iteration in range(epochIter*noEpochs):
 		# run forward and back prop
 		solver.step(1)
 
-	data_conv3p = solver.net.blobs['conv3p'].data
-	np.save("../comms/data_conv3p", data_conv3p)
+	np.save("../comms/data_conv3p", solver.net.blobs['conv3p'].data)
 
 	losses[net2_iteration] = float(solver.net.blobs['loss'].data)
 	np.save('../models/snapshots/net2_losses', losses)

@@ -199,13 +199,8 @@ layer {
 
 layer {
   name: "loss"
-  type: "Python"
+  type: "EuclideanLoss"
   bottom: "conv3"
   bottom: "conv3p"
   top: "loss"
-  loss_weight: 1
-  python_param {
-    module: 'pyloss'
-    layer: 'EuclideanLossLayer'
-  }
 }

@@ -18,37 +18,16 @@ net2_iteration = -1
 
 for net1_iteration in range(noEpochs*epochIter):
 
-	solver.net.forward()
-
-	labels = solver.net.blobs['label'].data
-	data_pool2 = solver.net.blobs['pool2'].data
-	np.save('../comms/data_pool2', data_pool2)
-	np.save('../comms/net1_iteration', net1_iteration)
-	np.save('../comms/net1_labels', labels)
-
 	if ((max(0,net1_iteration-10)/epochIter)%2==1):
 		print "Iteration " + str(net1_iteration) + ": idling"
 
-		while(net1_iteration != net2_iteration):
-			time.sleep(5)
-			print "waiting..."
-			try:
-				net2_iteration = int(np.load("../comms/net2_iteration.npy"))
-			except:
-				pass
+		solver.net.forward()
+		np.save('../comms/data_pool2', solver.net.blobs['pool2'].data)
+		np.save('../comms/net1_labels', solver.net.blobs['label'].data)
+		np.save('../comms/net1_iteration', net1_iteration)
 
 	else:
 		data_conv3p = solver.net.blobs['conv3p'].data
-
-		# check if net2 has finished its computation
-		while(net1_iteration != net2_iteration):
-			time.sleep(5)
-			print "waiting..."
-			try:
-				net2_iteration = int(np.load("../comms/net2_iteration.npy"))
-			except:
-				pass
-
 		# load the data produced by the second net
 		while True:
 			try:
@@ -63,11 +42,23 @@ for net1_iteration in range(noEpochs*epochIter):
 			solver.net.blobs['conv3p'].data[i] = net2_data[i]
 
 		# backprop and weight update
-		solver.net.backward()
-		for layer in solver.net.layers:
-	    		for blob in layer.blobs:
-	        		blob.data[...] -= learningRate*blob.diff
+		solver.step(1)
+		np.save('../comms/net1_iteration', net1_iteration)
 
+		# solver.net.backward()
+		# for layer in solver.net.layers:
+	    # 		for blob in layer.blobs:
+	    #     		blob.data[...] -= learningRate*blob.diff
+
+
+	# check if net2 has finished its computation
+	while(net1_iteration != net2_iteration):
+		time.sleep(5)
+		print "waiting..."
+		try:
+			net2_iteration = int(np.load("../comms/net2_iteration.npy"))
+		except:
+			pass
 
 	# save the value of the loss
 	losses[net1_iteration] = float(solver.net.blobs['loss'].data)
