@@ -47,8 +47,8 @@ transformer.set_transpose('data', (2,0,1))
 
 
 #Reading image paths
-test_img_paths = [img_path for img_path in glob.glob("../input/test/*jpg")]
-test_img_labels = np.load("../input/test/labels.npy")
+test_img_paths = [img_path for img_path in glob.glob("../../input/test/*jpg")]
+test_img_labels = np.load("../../input/test/labels.npy")
 
 #Calculating the accuracy
 noCorrect = 0.0

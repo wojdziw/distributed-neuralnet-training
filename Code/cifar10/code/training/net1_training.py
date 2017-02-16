@@ -7,7 +7,7 @@ GPU_ID = 1
 caffe.set_mode_gpu()
 caffe.set_device(GPU_ID)
 
-solver = caffe.get_solver('../models/net1_solver.prototxt')
+solver = caffe.get_solver('../../models/net1_solver.prototxt')
 
 net1Epoch = 100
 net2Epoch = 200
@@ -24,16 +24,16 @@ for net1_iteration in range(noEpochs*(net1Epoch+net2Epoch)+1):
 		print "Iteration " + str(net1_iteration) + ": idling"
 
 		solver.net.forward()
-		np.save('../comms/data_pool2', solver.net.blobs['pool2'].data)
-		np.save('../comms/net1_labels', solver.net.blobs['label'].data)
-		np.save('../comms/net1_iteration', net1_iteration)
+		np.save('../../comms/data_pool2', solver.net.blobs['pool2'].data)
+		np.save('../../comms/net1_labels', solver.net.blobs['label'].data)
+		np.save('../../comms/net1_iteration', net1_iteration)
 
 	else:
 		data_conv3p = solver.net.blobs['conv3p'].data
 		# load the data produced by the second net
 		while True:
 			try:
-				net2_data = np.load("../comms/data_conv3p.npy")
+				net2_data = np.load("../../comms/data_conv3p.npy")
 			except:
 				pass
 			else:
@@ -45,7 +45,7 @@ for net1_iteration in range(noEpochs*(net1Epoch+net2Epoch)+1):
 
 		# backprop and weight update
 		solver.step(1)
-		np.save('../comms/net1_iteration', net1_iteration)
+		np.save('../../comms/net1_iteration', net1_iteration)
 
 
 	# check if net2 has finished its computation
@@ -53,15 +53,15 @@ for net1_iteration in range(noEpochs*(net1Epoch+net2Epoch)+1):
 		time.sleep(5)
 		print "waiting..."
 		try:
-			net2_iteration = int(np.load("../comms/net2_iteration.npy"))
+			net2_iteration = int(np.load("../../comms/net2_iteration.npy"))
 		except:
 			pass
 
 	# save the value of the loss
 	losses[net1_iteration] = float(solver.net.blobs['loss'].data)
-	np.save('../models/snapshots/net1_losses', losses)
+	np.save('../../models/snapshots/net1_losses', losses)
 
 	if net1_iteration%100==0: #and net1_iteration>0:
-		solver.net.save('../models/snapshots/net1_iter_'+str(net1_iteration)+'.caffemodel')
+		solver.net.save('../../models/snapshots/net1_iter_'+str(net1_iteration)+'.caffemodel')
 
 	print "Iteration " + str(net1_iteration) + ". Loss is: " + str(float(solver.net.blobs['loss'].data))
