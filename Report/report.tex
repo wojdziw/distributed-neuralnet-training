@@ -1,25 +1,29 @@
 
-\documentclass[a4paper, 11pt]{article}
+\documentclass[a4paper, 12pt]{article}
 
-\usepackage{verbatim}
+
 \usepackage{pdfpages}
-\usepackage[T1]{fontenc}
+
 \usepackage{titling}
 \usepackage{amsmath}
-\usepackage{amsfonts}
-\usepackage{graphicx}
-\usepackage{mathtools}
-\usepackage[includeheadfoot,margin=23mm]{geometry}
-\usepackage{multirow}
-\usepackage{xfrac}
-\usepackage{epstopdf}
+
+\usepackage{geometry}
+\geometry{
+	a4paper,
+	total={170mm,257mm},
+	left=40mm,
+	top=30mm,
+	right=30mm,
+	bottom=30mm,
+}
+
 \usepackage{float}
 \makeatletter
 \newcommand{\sectionauthor}[1]{}
 \makeatother
 \usepackage[bottom]{footmisc}
-\usepackage{helvet}
-\renewcommand{\familydefault}{\sfdefault}
+\usepackage{times}
+
 
 \usepackage{chngcntr}
 \counterwithin{figure}{section}
@@ -59,8 +63,8 @@
 \renewcommand{\headrulewidth}{0.5pt}
 
 \numberwithin{equation}{section}
-\usepackage[numbered, framed]{matlab-prettifier}
 
+\usepackage[numbered, framed]{matlab-prettifier}
 \lstset{
 	style              = Matlab-editor,
 	escapechar         = ",
@@ -68,33 +72,70 @@
 	tabsize            = 2,
 }
 
+
+
 \graphicspath{{Images/}}
 
-\setlength{\droptitle}{-8em}
+
 
 \title{Distributed Neural Network Training \\ \large Final Year Project}
 
-\author{\textbf{Wojciech Dziwulski}}
+\author{Submitted by \\ \textbf{Wojciech Dziwulski} \\ Department of Electrical \& Computer Engineering}
 
 \date{}
 
 \begin{document}
 	
 	\clearpage
-	\maketitle
+
+	
+	\begin{titlepage}
+		\centering
+		\vfill
+		{\Huge Distributed Neural Network Training}\\
+		Final Year Project
+
+		\vskip5cm
+			
+		submitted by\\
+		{\large\textbf{Wojciech Dziwulski}}\\
+		Department of Electrical \& Computer Engineering
+		
+		\vfill
+		\includegraphics[width=8cm]{logos.png} 
+		\vfill
+		\vfill
+	\end{titlepage}
+	
+	
 	\thispagestyle{empty}
+	
+	\newpage
+	\pagenumbering{roman}
+	
 	\begin{abstract}
 		The project investigates the ways of breaking down deep neural network processing between several computational units. It first introduces some background information about machine intelligence and deep learning. Some existing approaches to the problem are summarized based on a relevant literature review. A novel strategy for distributing the computation is set out and various deep learning frameworks are evaluated to lead to a conclusive choice. The advantages and disadvantages of the framework are summarized, in addition to some baseline results of the proposed framework's implementation.
 		
 	\end{abstract}
+
+	\newpage
 	
+	\begin{center}
+		\textbf{Acknowledgments}
+	\end{center}
+
+   Dla mojej Myszki.
 	
 	\newpage
-	\pagenumbering{roman}
+	
 	\tableofcontents 
 	
+	\newpage
+	
+	\listoffigures
 	
 	\newpage
+	
 	\pagenumbering{arabic}
 	
 	
@@ -433,7 +474,7 @@
 	
 	Initially, the training set consisted of 10,000 images of cats and dogs, 5,000 each, of various dimensions. The animals presented in the images were captured in different positions and settings. The images were scaled into 227x227 resolution before the training.
 	
-	Even though useful for getting started, the dataset proved to be too computationally heavy for sufficiently quick prototyping. That is why the cifar10 dataset was used instead. It consists of CHECK THIS --->>>>>>>> 50,000 training images and 10,000 test images representing objects of 10 different classes, with 32x32px resolution.
+	Even though useful for getting started, the dataset proved to be too computationally heavy for sufficiently quick prototyping. That is why the cifar10 dataset was used instead. It consists of 50,000 training images and 10,000 test images representing objects of 10 different classes, with 32x32px resolution.
 	
 	\subsection{Deep learning frameworks}
 	Recent years have seen a tremendous rate of development of the field of deep learning, and, not surprisingly, a surge in the number of deep learning frameworks. Today the choice is abundant, and the main competitors vary significantly when it comes to performance, implementation and usability. Due to the very technical, low-level nature of the project, significant consideration was given to the choice of an appropriate framework.
@@ -549,6 +590,7 @@
 	
 	How do we define identical? The convolutional layers we are dealing with are huge, four-dimensional matrices as opposed to simple two-dimensional vectors, hence a more involved similarity metric is required for the comparison. Fortunately, the laws and metrics in linear algebra easily generalize to higher dimensions. Hence, to compare the convolutional dual layers we can use a simple Euclidean loss, as defined by:
 	
+	PUT A LABEL ON THIS - euclidean\_loss\_formula
 	\begin{equation}
 		E=\frac{1}{2N} \sum_{n=1}^{N} ||\hat{y}_n-y_n||^2_2
 	\end{equation}
@@ -583,9 +625,11 @@
 	
 	\subsection{Custom Euclidean Loss Layer}
 	
+	\subsubsection{No normalization}
+	
 	None of the built-in Caffe mechanism allowed for introducing a normalization term to the euclidean loss. Fortunately, Caffe does allow for custom layer creation which made it possible to define a \textbf{Euclidean Loss Layer with Normalization}.
 	
-	Conveniently, the examples online (\cite{caffe2016loss}) provided a custom python implementation of the Euclidean Loss Layer analysed before. It was decided to first contrast the performance of the layer found online in order to build the normalized loss layer on a proven baseline. The below code listing shows the parameter update step during forward propagation of the network.\\
+	Conveniently, the examples online (\cite{caffe2016loss}) provided a custom python implementation of the Euclidean Loss Layer analysed before. It was decided to first contrast the performance of the layer found online in order to build the normalized loss layer on a proven baseline. The below code listing shows the parameter update step during forward propagation of the network. it is the exact programmatic counterpart of equation \ref{euclidean_loss_formula}.\\
 	
 	\begin{lstlisting}[caption={Defining the loss in a custom loss layer.}\label{lst:custom_loss},language=Python]
 	def forward(self, bottom, top):
@@ -607,10 +651,46 @@
 	
 	The impressive conclusion from the above is that since the bottom part of the dual network was virtually useless (its loss was constant throughout the training), all learning has occured in the latter part i.e. only using one convolutional layer. This is truly remarkable, given how close the classification accuracy was to the fully-leveraged single-net architecture.
 	
-	Even though the architecture was imperfect, it was decided to test the network with big data batches and compare their size to the maximum that can be fitted on the singular network topology.
+	\subsubsection{Corrected custom setup}
 	
-	\subsection{Big batch}
+	Once the error was identified, and the "loss\_weight: 1" term was added to the prototxt file, the setup was ready for the testing using the corrected custom loss layer. To first confirm that it is consistent with the default Euclidean Loss Layer used in the training before (fig. \ref{fig:first_try}), the custom layer was used in its default state, without any normalization terms introduced just yet. The result is presented in figure \ref{fig:second_try}. It can be observed that the loss trends are similar to the ones exhibited by the Caffe default setup. Admittedly, it is even smoother and more predictable, which constitutes an easily-interpretable baseline result that can be used for comparison later.
 	
+	\begin{figure}[!h]
+		\centering
+		\includegraphics[page=1,width=0.9\textwidth]{second_try.png}
+		\caption{\label{fig:second_try}{The training losses with the "default" custom layer in place.}}
+	\end{figure}
+	
+	\subsubsection{Normalization term }
+	
+	Based on the previous examples, though, It became very clear that the need for normalization of the training loss in net1 is compelling. The first approach to the loss normalization involved dividing it by the sum of the 2-norms of both of the convolutional layers. This can be neatly represented as:
+	
+	\begin{equation}
+	E=\frac{1}{2N} \sum_{n=1}^{N} \frac{ ||\hat{y}_n-y_n||^2_2}{\sqrt{||\hat{y_n}||^2_2+||y_n||^2_2}} 
+	\end{equation}
+	
+	Finding the optimum of this loss using the gradient methods such as SGD would be extremely difficult, though, given the complexity of the potential differentiation. Another loss function proposed was:
+	
+	\begin{equation}
+	E=\frac{1}{2N} \sum_{n=1}^{N} \frac{ ||\hat{y}_n-y_n||^2_2}{\sqrt{||\hat{y_n}||^2_2}} 
+	\end{equation}
+	
+	This was indeed simpler to differentiate ()as the $\hat{y}_n$ term was just a constant in each case) and hence tested using a variety of parameters.
+	
+	It was hoped that the normalization term will make the loss values consistent, and then attempt to indeed minimize the difference between them instead of just bringing the absolute parameter values close to zero. This first attempt at normalization did not result in a significant improvement in performance. The loss values were indeed bounded to comparable values (the loss decrease was not exponential as before), but dropped to zero very quickly. After that, the outputs of the layers quickly overflowed.
+	
+	What brought about some promising conclusions was drastically decreasing the learning rate of the net1's custom loss layer. It turned out that as long as net1's loss is not changing much, more convergence can be observed in net2. This suggested a whole new approach to looking at ADMM within the algorithm used. Instead of trying to optimize each loss at every iteration, we would now hold one of the losses for many iterations, let it converge a little, and then move on to optimization of the other loss. It was then decided to take a step back and abandon the idea of normalization, for the sake of better choice of the training parameters, particularly the learning rate. This let us also use the default implementation of the Euclidean loss, which was beneficial due to the programmatic optimizations for such layers in Caffe. nevertheless, the custom layer analysis in the previous chapter  contributed to the progress of the project as the role of various parameters in the training was better understood.
+	
+	\subsection{Rethinking ADMM}
+
+	\subsubsection{Back to the default, non-normalized approach}
+	
+	\subsubsection{Individual convergence}
+	
+	\subsection{Adjusting the parameters}
+	
+	\subsubsection{Batch size}
+		
 	To run the tests, the batch size was increased to twice its previous size every time until it filled up the memory of the GPU completely. It turned out that:
 	\begin{itemize}
 		\item The biggest batch size that can be fitted on the single net topology is 2608 samples.
@@ -628,7 +708,7 @@
 	\begin{figure}[!h]
 		\centering
 		\includegraphics[page=1,width=0.9\textwidth]{big_batch.png}
-		\caption{\label{fig:big_batch}{Training curves of the single and dual network setup using maximum batch sizes (2608 samples in single and 4096 samples in dual).}}
+		\caption{\label{fig:big_batch}{Training curves of the single and dual network setup using maximum batch sizes (2608 samples in single and 4096 samples in dual). CHANGE ME}}
 	\end{figure}
 
 	The figure \ref{fig:big_batch} shows the training curves for both of the network architectures using maximal mini-batch sizes. The learning curves are clearly smooth at times but also exhibit some spiking behaviour. This can be easily explained.
@@ -637,75 +717,19 @@
 	
 	On the other hand, the stochasticity of the gradient descent is somewhat lost as the batch increases. The spikes occur because the loss function is getting trapped in local minima of the loss functions that would normally be quickly escaped fromt thanks to probabilistic choice of the samples forming the dataset.
 	
-	\subsection{Corrected custom setup}
-	
-	Once the error was identified, and the "loss\_weight: 1" term was added to the prototxt file, the setup was ready for the testing using the corrected custom loss layer. To first confirm that it is consistent with the default Euclidean Loss Layer used in the training before (fig. \ref{fig:first_try}), the custom layer was used in its default state, without any normalization terms introduced just yet. The result is presented in figure \ref{fig:second_try}. It can be observed that the loss trends are similar to the ones exhibited by the Caffe default setup. Admittedly, it is even smoother and more predictable, which constitutes an easily-interpretable baseline result that can be used for comparison later.
-	
-	\begin{figure}[!h]
-		\centering
-		\includegraphics[page=1,width=0.9\textwidth]{second_try.png}
-		\caption{\label{fig:second_try}{The training losses with the "default" custom layer in place.}}
-	\end{figure}
-
-	\subsection{Normalization term }
-	
-	It became very clear that the need for normalization of the training loss in net1 is compelling. The first approach to the loss normalization involved dividing it by the sum of the 2-norms of both of the convolutional layers. This can be neatly represented as:
-	
-	THIS IS PROBABLY WRONG
-	
-	\begin{equation}
-		E=\frac{1}{2N} \sum_{n=1}^{N} \frac{||\hat{y}_n-y_n||^2_2}{||\hat{y}||^2_2+||y||^2_2} 
-	\end{equation}
-	
-	It was hoped that the normalization term will make the loss values consistent, and then attempt to indeed minimize the difference between them instead of just bringing the absolute parameter values close to zero. As shown in figure \ref{fig:exploding_values}, this first attempt at normalization did not result in a significant improvement in performance. The loss values were indeed bounded to comparable values (the loss decrease was not exponential as before), but dropped to zero very quickly. After that, the outputs of the layers quickly overflowed. \\
-	
-	\begin{figure}[!hb]
-		\centering
-		\includegraphics[page=1,width=0.9\textwidth]{exploding_values.png}
-		\caption{\label{fig:exploding_values}{It turned out that introducing the normalization term helped bound the loss values a little, but still led to very unstable behaviour afterwards}}
-	\end{figure}
-	
-	Figure \ref{fig:plus_equals} shows yet another variation on the testing parameters in order to find the error in the network architecture setup. The sign of the parameter update in each of the layers was flipped, as shown in the line 5 in listing \ref{lst:modified_update}. \\
-	
-	\begin{lstlisting}[caption={Modified parameter update routine}\label{lst:modified_update},language=Python]
-	# backprop and weight update
-	solver.net.backward()
-	for layer in solver.net.layers:
-	    for blob in layer.blobs:
- 	        blob.data[...] += learningRate*blob.diff
-	\end{lstlisting}
-	
-	Not surprisingly, it resulted in network 1 loss increasing, which at least confirmed that the parameter update was in the right direction. What was surprising, though, was that the image classification loss did exhibit a decrease, before it exploded into highly overflown numbers.
-	
-	\begin{figure}[!h]
-		\centering
- 		\includegraphics[page=1,width=0.9\textwidth]{plus_equals.png}
-		\caption{\label{fig:plus_equals}{In the pursuit of the errors, several different network setups were tested. This one involved changing the sign of the gradient addition.}}
-	\end{figure}
-	
-	\subsection{Learning rate}
+	\subsubsection{Learning rate}
 	
 	In the pursuit of a solution to the dual convergence problem many attempts were made at adjusting the model parameters in order to achieve more promising results. One to which the convergence seemed particularly sensitive was, not surprisingly, the learning rate. While researching the possible explanations for devastatingly rapid convergence or increasing loss function, many specialist forums suggested adjusting the learning rate as one of the main factors affecting the training. Sadly, in most of the cases the learning rate affected just that - the rate of learning, the speed at which our network is approaching the value it is converging to. Apart from a couple of extreme cases (not worth mentioning), varying the learning rate simply stretched or shrinked the learning curve across the iterations appropriately. This can be very vividly seen on figure \ref{fig:learning_rate_variation}, where the two networks were trained using the same parameters and under identical circumstances, save the learning rate which differed by a factor of a 100 between the two.
-	
-	\begin{figure}[!h]
-		\centering
-		\includegraphics[page=1,width=0.7\textwidth]{learning_rate_variation.pdf}
-		\caption{\label{fig:learning_rate_variation}{It is clear that in most of the cases varying the learning rate changed just that - the rate at which we are approaching convergence. The above nets were trained using the same parameters and under identical circumstances, save the learning rate which differed by a factor of a 100 between the two.}}
-	\end{figure}
-	
-	
-	
 	
 	
 	\newpage
 	\clearpage
 	\subsection{things to do in this report}
 	\begin{enumerate}
-		\item label listings]
 		\item download some python syntax coloring
-		\item swap the figures to something that is not crap
-		\item figure out the right formulae for normalization
-		\item up to normalization part, everything should be okay. Later it's wild
+		\item question to feng - how to determine the number of epochs (all samples)
+			
+
 	\end{enumerate}
 	
 	
