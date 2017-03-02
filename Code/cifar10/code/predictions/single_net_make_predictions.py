@@ -38,7 +38,7 @@ def transform_img(img, img_width=IMAGE_WIDTH, img_height=IMAGE_HEIGHT):
 
 #Read model architecture and trained model's weights
 net = caffe.Net('../../models/net12_deploy_def.prototxt',
-                '../../models/snapshots/net12_iter_600.caffemodel',
+                '../../models/snapshots/net12_iter_1000.caffemodel',
                 caffe.TEST)
 
 #Define image transformers

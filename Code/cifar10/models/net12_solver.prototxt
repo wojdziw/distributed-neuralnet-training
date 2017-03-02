@@ -10,5 +10,5 @@ max_iter: 40000
 momentum: 0.9	
 weight_decay: 0.0005
 snapshot: 200
-snapshot_prefix: "/home/wojciech/Final-Year-Project/Code/cifar10/models/snapshots/net12"
+snapshot_prefix: "/home/wojciech/Final-Year-Project/Code/cifar10/snapshots/net12"
 solver_mode: GPU
