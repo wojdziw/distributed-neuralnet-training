@@ -2,30 +2,35 @@
 \contentsline {section}{\numberline {2}Background - machine intelligence}{2}
 \contentsline {subsection}{\numberline {2.1}Neural networks}{2}
 \contentsline {subsection}{\numberline {2.2}Gradient descent}{6}
-\contentsline {subsection}{\numberline {2.3}Deep learning}{7}
-\contentsline {section}{\numberline {3}Scaling and parallelisation}{8}
-\contentsline {section}{\numberline {4}Breaking it down}{9}
-\contentsline {subsection}{\numberline {4.1}Large Scale Distributed Deep Networks}{10}
-\contentsline {subsection}{\numberline {4.2}Project Adam}{11}
-\contentsline {subsection}{\numberline {4.3}Contrast and conclusions}{12}
-\contentsline {section}{\numberline {5}ADMM}{12}
-\contentsline {section}{\numberline {6}ADMM and deep learning}{14}
-\contentsline {subsection}{\numberline {6.1}Strategy}{14}
-\contentsline {subsection}{\numberline {6.2}Dual net}{14}
-\contentsline {section}{\numberline {7}Architecture}{16}
-\contentsline {subsection}{\numberline {7.1}Putting it all together}{16}
-\contentsline {subsection}{\numberline {7.2}Dataset}{18}
-\contentsline {subsection}{\numberline {7.3}Deep learning frameworks}{18}
-\contentsline {subsection}{\numberline {7.4}Caffe tricks and quirks}{19}
-\contentsline {section}{\numberline {8}The algorithm}{21}
-\contentsline {section}{\numberline {9}Testing}{22}
-\contentsline {subsection}{\numberline {9.1}Technical difficulties}{22}
-\contentsline {subsection}{\numberline {9.2}Two objectives}{23}
-\contentsline {subsection}{\numberline {9.3}Net 1 loss}{24}
-\contentsline {subsection}{\numberline {9.4}Default Euclidean Loss Layer in practice}{24}
-\contentsline {subsection}{\numberline {9.5}Custom Euclidean Loss Layer}{26}
-\contentsline {subsection}{\numberline {9.6}Big batch}{28}
-\contentsline {subsection}{\numberline {9.7}Corrected custom setup}{30}
-\contentsline {subsection}{\numberline {9.8}Normalization term }{30}
-\contentsline {subsection}{\numberline {9.9}Learning rate}{32}
-\contentsline {subsection}{\numberline {9.10}things to do in this report}{35}
+\contentsline {subsection}{\numberline {2.3}Deep learning}{8}
+\contentsline {section}{\numberline {3}Scaling and parallelisation}{9}
+\contentsline {section}{\numberline {4}Breaking it down}{10}
+\contentsline {subsection}{\numberline {4.1}Large Scale Distributed Deep Networks}{11}
+\contentsline {subsection}{\numberline {4.2}Project Adam}{12}
+\contentsline {subsection}{\numberline {4.3}Contrast and conclusions}{13}
+\contentsline {section}{\numberline {5}ADMM}{14}
+\contentsline {section}{\numberline {6}ADMM and deep learning}{15}
+\contentsline {subsection}{\numberline {6.1}Strategy}{16}
+\contentsline {subsection}{\numberline {6.2}Dual net}{16}
+\contentsline {section}{\numberline {7}Architecture}{18}
+\contentsline {subsection}{\numberline {7.1}Putting it all together}{18}
+\contentsline {subsection}{\numberline {7.2}Dataset}{20}
+\contentsline {subsection}{\numberline {7.3}Deep learning frameworks}{20}
+\contentsline {subsection}{\numberline {7.4}Caffe tricks and quirks}{21}
+\contentsline {section}{\numberline {8}The algorithm}{23}
+\contentsline {section}{\numberline {9}Testing}{25}
+\contentsline {subsection}{\numberline {9.1}Technical difficulties}{25}
+\contentsline {subsection}{\numberline {9.2}Two objectives}{26}
+\contentsline {subsection}{\numberline {9.3}Net 1 loss}{27}
+\contentsline {subsection}{\numberline {9.4}Default Euclidean Loss Layer in practice}{27}
+\contentsline {subsection}{\numberline {9.5}Custom Euclidean Loss Layer}{30}
+\contentsline {subsubsection}{\numberline {9.5.1}No normalization}{30}
+\contentsline {subsubsection}{\numberline {9.5.2}Corrected custom setup}{32}
+\contentsline {subsubsection}{\numberline {9.5.3}Normalization term }{32}
+\contentsline {subsection}{\numberline {9.6}Rethinking ADMM}{34}
+\contentsline {subsubsection}{\numberline {9.6.1}Back to the default, non-normalized approach}{34}
+\contentsline {subsubsection}{\numberline {9.6.2}Individual convergence}{34}
+\contentsline {subsection}{\numberline {9.7}Adjusting the parameters}{34}
+\contentsline {subsubsection}{\numberline {9.7.1}Batch size}{34}
+\contentsline {subsubsection}{\numberline {9.7.2}Learning rate}{36}
+\contentsline {subsection}{\numberline {9.8}things to do in this report}{37}

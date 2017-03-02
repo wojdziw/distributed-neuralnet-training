@@ -1,0 +1,16 @@
+\contentsline {figure}{\numberline {2.1}{\ignorespaces {A logistic unit}\relax }}{3}
+\contentsline {figure}{\numberline {2.2}{\ignorespaces {A simple neural net}\relax }}{4}
+\contentsline {figure}{\numberline {2.3}{\ignorespaces {We follow the function in the negative gradient direction.}\relax }}{7}
+\contentsline {figure}{\numberline {2.4}{\ignorespaces {The input volume in red is transformed into a set of 5 activation layers using 5 convolutional filters.}\relax }}{9}
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Example model architecture in DistBelief \cite {dean2012large}\relax }}{11}
+\contentsline {figure}{\numberline {6.1}{\ignorespaces {The single network architecture used as a baseline.}\relax }}{16}
+\contentsline {figure}{\numberline {6.2}{\ignorespaces {Breaking down the network between the machines}\relax }}{18}
+\contentsline {figure}{\numberline {7.1}{\ignorespaces {The single network architecture used as a baseline.}\relax }}{18}
+\contentsline {figure}{\numberline {7.2}{\ignorespaces {The dual networks imitating the single one.}\relax }}{19}
+\contentsline {figure}{\numberline {7.3}{\ignorespaces {The Caffe net1 print.}\relax }}{19}
+\contentsline {figure}{\numberline {7.4}{\ignorespaces {The Caffe net2 print.}\relax }}{20}
+\contentsline {figure}{\numberline {8.1}{\ignorespaces {The algorithm used for dual network training.}\relax }}{24}
+\contentsline {figure}{\numberline {9.1}{\ignorespaces {The training losses for the prototype framework.}\relax }}{29}
+\contentsline {figure}{\numberline {9.2}{\ignorespaces {The losses for both of the networks during the first iteration of training using a custom Euclidean loss layer.}\relax }}{31}
+\contentsline {figure}{\numberline {9.3}{\ignorespaces {The training losses with the "default" custom layer in place.}\relax }}{32}
+\contentsline {figure}{\numberline {9.4}{\ignorespaces {Training curves of the single and dual network setup using maximum batch sizes (2608 samples in single and 4096 samples in dual). CHANGE ME}\relax }}{35}
