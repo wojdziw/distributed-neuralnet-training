@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import matplotlib
 import os.path
 
-printDual = os.path.isfile("../../models/snapshots/net1_losses.npy")
-printSingle = os.path.isfile("../../models/snapshots/net12_losses.npy")
+printDual = os.path.isfile("../../snapshots/net1_losses.npy")
+printSingle = os.path.isfile("../../snapshots/net12_losses.npy")
 
 import matplotlib
 matplotlib.rc('xtick', labelsize=10)
@@ -19,8 +19,8 @@ def nonZeroEntries(numbers):
 
 if printDual:
 
-	y1 = np.load("../../models/snapshots/net1_losses.npy")
-	y2 = np.load("../../models/snapshots/net2_losses.npy")
+	y1 = np.load("../../snapshots/net1_losses.npy")
+	y2 = np.load("../../snapshots/net2_losses.npy")
 
 	n1 = nonZeroEntries(y1)
 	n1=1000
@@ -54,7 +54,7 @@ plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, h
 
 if printSingle:
 
-	y3 = np.load("../../models/snapshots/net12_losses.npy")
+	y3 = np.load("../../snapshots/net12_losses.npy")
 
 	n2 = nonZeroEntries(y3)
 	x2 = range(n2)
