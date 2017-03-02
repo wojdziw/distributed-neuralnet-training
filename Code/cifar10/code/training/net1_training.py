@@ -9,10 +9,10 @@ caffe.set_device(GPU_ID)
 
 solver = caffe.get_solver('../../models/net1_solver.prototxt')
 
-net1_seq_size = 70
-net2_seq_size = 200
+net1_seq_size = 50
+net2_seq_size = 150
 
-no_seqs = 5
+no_seqs = 7
 
 losses = np.zeros(no_seqs*(net1_seq_size+net2_seq_size)+1)
 net2_iteration = -1
@@ -61,7 +61,7 @@ for net1_iteration in range(no_seqs*(net1_seq_size+net2_seq_size)+1):
 	losses[net1_iteration] = float(solver.net.blobs['loss'].data)
 	np.save('../../snapshots/net1_losses', losses)
 
-	if net1_iteration%100==0: #and net1_iteration>0:
+	if net1_iteration%50==0: #and net1_iteration>0:
 		solver.net.save('../../snapshots/net1_iter_'+str(net1_iteration)+'.caffemodel')
 
 	print "Iteration " + str(net1_iteration) + ". Loss is: " + str(float(solver.net.blobs['loss'].data))
