@@ -14,6 +14,7 @@ Code/cifar10/input/*
 Code/cifar10/images/*
 Code/cifar10/comms/*
 Code/cifar10/models/snapshots/*
+Code/cifar10/snapshots/*
 *.DS_Store
 *.png
 
