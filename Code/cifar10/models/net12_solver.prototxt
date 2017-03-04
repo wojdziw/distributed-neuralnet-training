@@ -1,4 +1,4 @@
-net: "/home/wojciech/Final-Year-Project/Code/cifar10/models/net12_train_def.prototxt"
+net: "../../models/net12_train_def.prototxt"
 test_iter: 1
 test_interval: 100000
 base_lr: 0.001
@@ -7,8 +7,8 @@ gamma: 0.1
 stepsize: 2500
 display: 1
 max_iter: 40000
-momentum: 0.9	
+momentum: 0.9
 weight_decay: 0.0005
-snapshot: 200
-snapshot_prefix: "/home/wojciech/Final-Year-Project/Code/cifar10/snapshots/net12"
+snapshot: 50
+snapshot_prefix: "../../snapshots/net12"
 solver_mode: GPU
