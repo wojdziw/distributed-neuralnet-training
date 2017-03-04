@@ -7,14 +7,14 @@ GPU_ID = 2
 caffe.set_mode_gpu()
 caffe.set_device(GPU_ID)
 
-solver = caffe.SGDSolver('../../models/net2_solver.prototxt')
+solver = caffe.get_solver('../../models/net2_solver.prototxt')
 
 net1_seq_size = 50
 net2_seq_size = 150
-
-no_seqs = 7
+no_seqs = 20
 
 losses = np.zeros(no_seqs*(net1_seq_size+net2_seq_size)+1)
+total_non_idle_time = 0
 
 net1_iteration = -1
 np.save('../../comms/net1_iteration', -1)
@@ -22,7 +22,7 @@ np.save('../../comms/net2_iteration', -1)
 
 for net2_iteration in range(no_seqs*(net1_seq_size+net2_seq_size)+1):
 
-	if (max(0,net2_iteration-10)%(net1_seq_size+net2_seq_size)<net1_seq_size and net2_iteration>=10):
+	if (net2_iteration%(net1_seq_size+net2_seq_size)<net1_seq_size and net2_iteration>=10):
 		print "Iteration " + str(net2_iteration) + ": idling"
 
 		while(net1_iteration != net2_iteration):
@@ -35,6 +35,7 @@ for net2_iteration in range(no_seqs*(net1_seq_size+net2_seq_size)+1):
 				pass
 
 	else:
+		start_time = time.time()
 
 		# We can only start an iteration once we have data ready from net1
 		while(net1_iteration != net2_iteration):
@@ -62,6 +63,9 @@ for net2_iteration in range(no_seqs*(net1_seq_size+net2_seq_size)+1):
 		# run forward and back prop
 		solver.step(1)
 
+		end_time = time.time()
+		total_non_idle_time += end_time-start_time
+
 	np.save("../../comms/data_conv3p", solver.net.blobs['conv3p'].data)
 
 	losses[net2_iteration] = float(solver.net.blobs['loss'].data)
@@ -73,3 +77,6 @@ for net2_iteration in range(no_seqs*(net1_seq_size+net2_seq_size)+1):
 	print "Iteration " + str(net2_iteration) + ". Loss is: " + str(float(solver.net.blobs['loss'].data))
 
 	np.save('../../comms/net2_iteration', net2_iteration)
+
+print "Total non-idle time is " + str(total_non_idle_time)
+np.save('../../snapshots/net2_time_taken', total_non_idle_time)

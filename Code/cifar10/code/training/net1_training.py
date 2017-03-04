@@ -12,14 +12,15 @@ solver = caffe.get_solver('../../models/net1_solver.prototxt')
 net1_seq_size = 50
 net2_seq_size = 150
 
-no_seqs = 7
+no_seqs = 20
 
 losses = np.zeros(no_seqs*(net1_seq_size+net2_seq_size)+1)
+total_non_idle_time = 0
 net2_iteration = -1
 
 for net1_iteration in range(no_seqs*(net1_seq_size+net2_seq_size)+1):
 
-	if (max(0,net1_iteration-10)%(net1_seq_size+net2_seq_size)>=net1_seq_size):
+	if (net1_iteration%(net1_seq_size+net2_seq_size)>=net1_seq_size):
 
 		print "Iteration " + str(net1_iteration) + ": idling"
 
@@ -29,6 +30,8 @@ for net1_iteration in range(no_seqs*(net1_seq_size+net2_seq_size)+1):
 		np.save('../../comms/net1_iteration', net1_iteration)
 
 	else:
+		start_time = time.time()
+
 		data_conv3p = solver.net.blobs['conv3p'].data
 		# load the data produced by the second net
 		while True:
@@ -47,6 +50,8 @@ for net1_iteration in range(no_seqs*(net1_seq_size+net2_seq_size)+1):
 		solver.step(1)
 		np.save('../../comms/net1_iteration', net1_iteration)
 
+		end_time = time.time()
+		total_non_idle_time += end_time-start_time
 
 	# check if net2 has finished its computation
 	while(net1_iteration != net2_iteration):
@@ -65,3 +70,6 @@ for net1_iteration in range(no_seqs*(net1_seq_size+net2_seq_size)+1):
 		solver.net.save('../../snapshots/net1_iter_'+str(net1_iteration)+'.caffemodel')
 
 	print "Iteration " + str(net1_iteration) + ". Loss is: " + str(float(solver.net.blobs['loss'].data))
+
+print "Total non-idle time is " + str(total_non_idle_time)
+np.save('../../snapshots/net1_time_taken', total_non_idle_time)

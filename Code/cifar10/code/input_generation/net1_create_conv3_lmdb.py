@@ -1,77 +1,66 @@
-'''
-Title           :create_lmdb.py
-Description     :This script divides the training images into 2 sets and stores them in lmdb databases for training and validation.
-Author          :Adil Moujahid
-Date Created    :20160619
-Date Modified   :20160625
-version         :0.2
-usage           :python create_lmdb.py
-python_version  :2.7.11
-'''
+# Adapted from Adil Moujahid
+# https://github.com/adilmoujahid/deeplearning-cats-dogs-tutorial
 
 import os
 import glob
 import random
 import numpy as np
-
 import cv2
-
 import caffe
-from caffe.proto import caffe_pb2
 import lmdb
+from caffe.proto import caffe_pb2
+from subprocess import call
 
-def transform_img(img, img_width, img_height):
+GPU_ID = 2
+caffe.set_mode_gpu()
+caffe.set_device(GPU_ID)
 
-    #Histogram Equalization
-    img[:, :, 0] = cv2.equalizeHist(img[:, :, 0])
-    img[:, :, 1] = cv2.equalizeHist(img[:, :, 1])
-    img[:, :, 2] = cv2.equalizeHist(img[:, :, 2])
+# The values here are very much depend on the architecture used
+# They have to be found empirically by examining the size of the conv3 layer
+# This is of course no ideal and can be considered a dirty hack
+# Serious attempts to moving all this to a MemoryData layer were made
+# With no success, due to the bugs in Caffe
+IMAGE_WIDTH = 8
+IMAGE_HEIGHT = 8
+NO_FILTERS = 384
+INPUT_PATH = "../../input/train/*jpg"
+OUTPUT_TEST_PATH = "../../input/net1_conv3_test_lmdb"
+OUTPUT_TRAIN_PATH = "../../input/net1_conv3_train_lmdb"
 
-    #Image Resizing
-    img = cv2.resize(img, (img_width, img_height), interpolation = cv2.INTER_CUBIC)
-
-    return img
-
-
-def make_datum(img, label, no_filters):
-    #image is numpy.ndarray format. BGR instead of RGB
+def make_datum(img, label, img_width, img_height, no_filters):
+    # Make sure the channels are flipped to conform to the cv2 BGR format
     return caffe_pb2.Datum(
         channels=no_filters,
-        width=image_width,
-        height=image_height,
+        width=img_width,
+        height=img_height,
         label=label,
         data=np.rollaxis(img, 2).tostring())
 
-def create_lmdb(input_path, output_path, image_width, image_height, no_filters):
+def create_lmdb(input_path, output_path, img_width, img_height, no_filters):
+    # Loading the input - only for reference (we have to generate a good dummy)
+    data = [img for img in glob.glob(input_path)]
 
+    # Cleaning up the output
     os.system('rm -rf  ' + output_path)
 
-    data = [img for img in glob.glob(input_path)]
-    np.save('../../comms/image_data', data)
-
-    #Shuffle data
+    # Shuffle data
     random.shuffle(data)
 
+    # Produce the LMDB
     in_db = lmdb.open(output_path, map_size=int(1e12))
     with in_db.begin(write=True) as in_txn:
         for in_idx, img_path in enumerate(data):
-            if in_idx %  6 == 0:
-                continue
-            img = np.zeros([image_height, image_width, no_filters])
-	    #img = cv2.imread(img_path, cv2.IMREAD_COLOR)
-	    #img = transform_img(img, image_width, image_height)
-
-            datum = make_datum(img, 1, no_filters)
+            img = np.zeros([img_height, img_width, no_filters])
+            datum = make_datum(img, 1, img_width, img_height, no_filters)
             in_txn.put('{:0>5d}'.format(in_idx), datum.SerializeToString())
-            print '{:0>5d}'.format(in_idx) + ':' + img_path
+
+            if in_idx%500==0:
+                print str(in_idx) + "/" + str(len(data)) + " completed"
     in_db.close()
 
-    print '\nFinished processing all images'
-
+    print "Finished processing all images"
     return 0
 
-#Size of images
-image_width = 8
-image_height = 8
-no_filters = 384
-create_lmdb("../../input/train/*jpg","../../input/net1_lmdb_conv3", image_width, image_height, no_filters)
+create_lmdb(INPUT_PATH, OUTPUT_TRAIN_PATH, IMAGE_WIDTH, IMAGE_HEIGHT, NO_FILTERS)
+print "Copying into the test dummy..."
+call(["cp", "-r", OUTPUT_TRAIN_PATH, OUTPUT_TEST_PATH])
