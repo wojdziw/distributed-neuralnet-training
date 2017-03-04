@@ -726,12 +726,34 @@
 	\clearpage
 	\subsection{things to do in this report}
 	\begin{enumerate}
-		\item download some python syntax coloring
-		\item question to feng - how to determine the number of epochs (all samples)
+		\item tried to use memorydata layer but didn't work
+	
 			
 
 	\end{enumerate}
 	
+	Rules of thumb for setting the learning rate α
+	α
+	and momentum μ
+	μ
+	A good strategy for deep learning with SGD is to initialize the learning rate α
+	α
+	to a value around α≈0.01=10−2
+	α
+	≈
+	0.01
+	=
+	10
+	−
+	2
+	, and dropping it by a constant factor (e.g., 10) throughout training when the loss begins to reach an apparent “plateau”, repeating this several times. Generally, you probably want to use a momentum μ=0.9
+	μ
+	=
+	0.9
+	or similar value. By smoothing the weight updates across iterations, momentum tends to make deep learning with SGD both stabler and faster.
+	
+	This was the strategy used by Krizhevsky et al. [1] in their famously winning CNN entry to the ILSVRC-2012 competition, and Caffe makes this strategy easy to implement in a SolverParameter, as in our reproduction of [1] at 
+	http://caffe.berkeleyvision.org/tutorial/solver.html
 	
 	\newpage
 	
