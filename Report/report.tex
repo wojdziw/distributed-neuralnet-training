@@ -58,6 +58,7 @@
 {0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
 \usepackage{gensymb}
 
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
 
 
 \renewcommand{\headrulewidth}{0.5pt}
@@ -116,6 +117,10 @@
 	\begin{abstract}
 		The project investigates the ways of breaking down deep neural network processing between several computational units. It first introduces some background information about machine intelligence and deep learning. Some existing approaches to the problem are summarized based on a relevant literature review. A novel strategy for distributing the computation is set out and various deep learning frameworks are evaluated to lead to a conclusive choice. The advantages and disadvantages of the framework are summarized, in addition to some baseline results of the proposed framework's implementation.
 		
+		An algorithm utilising the Alternating Direction Method of Multipliers (ADMM) optimization within Deep Learning is proposed. It is then thoroughly tested and refactored, considering the technical limitations of the deep learning framework used - Caffe. Finally, the complete and working version of the algorithm is obtained.
+		
+		It is subsequently validated using the CIFAR10 dataset. The classification accuracy achieved by the dual setup is found to be within the 5.5\% bound lower than the one achieved by a singular, traditional architecture. It is proven, however, that the novel setup is also able to accomodate a much larger batch size (factor of 2) which can be interpreted as a success and a major disruption. Prospectively, it is allowing for training much deeper network topologies in an architecture distributed between several computational units.
+		
 	\end{abstract}
 
 	\newpage
@@ -124,7 +129,17 @@
 		\textbf{Acknowledgments}
 	\end{center}
 
-   Dla mojej Myszki.
+    This report summarizes year's worth of hard (but fun!) work and commitment. None of it could have been completed without the help and support of many people and institutions who need to be acknowledged. Among all, I would particularly like to thank:
+    
+    Prof. Feng Jiashi, my supervisor, whose knowledge and experience I could have always counted on. I truly learnt a lot during the project and that wouldn't be possible without the solid academic support I received.
+    
+    Prof. Mark Cannon, the coordinator of 4th year studies in Oxford, without whose commitment I wouldn't be able to partake in the exchange programme.
+    
+    The Department of Electrical and Computer Engineering at NUS and the Department of Engineering Science at Oxford, both for giving me the necessary institutional support throughout my studies and completion of the thesis.
+    
+    My parents and my family, some of my biggest supporters, who cheered me up and motivated me throughout the year abroad in Singapore.
+    
+    Most importantly, to Małgorzata Kasprzak, my girlfriend and my best friend. She gave me love and understanding during our year apart which encouraged me to follow my dreams.
 	
 	\newpage
 	
@@ -133,6 +148,10 @@
 	\newpage
 	
 	\listoffigures
+	
+	\newpage
+	
+	\listoftables
 	
 	\newpage
 	
@@ -158,7 +177,9 @@
 	
 	Interestingly the problems that we, humans, find awfully easy, such as informed vision, turn out to be tremendously hard for the computers to perform. Our brains are amazingly complicated machines, with the computational power available at a very low energetic cost. Millions of years of evolution equipped us with skills that are impossible to replicate with the current technology, which certainly doesn't mean we shouldn't try, though! The research on human visual cortex (Kruger et al., 2013 \cite{kruger2013deep}), for example, gave us significant insight into the generalised machine vision problems, and stimulated the development of a field known as deep learning.
 	
-	Current technology allows us to achieve tremendous image classification results, but novel methods need to be developed in order to tackle the new challenges. It turns out that the complexity of the functions a neural network can learn increases with the increasing depth of the net itself. To construct a truly deep network, though, we need more space for computation, which we can achieve by distributing the computation among many distinct servers. This approach will ideally be indistinguishable to the outside world from a training a single network and should lead to similar, if not better, classification results. Before we delve into the technical details of the distributed training itself, though, let's revisit some basic machine learning concepts first in order to establish a solid grounding for the later considerations.
+	Current technology allows us to achieve tremendous image classification results, but novel methods need to be developed in order to tackle the new challenges. It turns out that the complexity of the functions a neural network can learn increases with the increasing depth of the net itself. To construct a truly deep network, though, we need more space for computation, which we can achieve by distributing the computation among many distinct servers. This approach will ideally be indistinguishable to the outside world from a training a single network and should lead to similar, if not better, classification results. \textbf{This is the central objective of this research project.}
+	
+	 Before we delve into the technical details of the distributed training itself, though, let's revisit some basic machine learning concepts first in order to establish a solid grounding for the later considerations.
 	
 	\section{Background - machine intelligence}
 	
@@ -204,9 +225,9 @@
 	The computation above is called forward propagation, because it sequentially calculates the activation value $a$ for particular layers of logistic units using the previous ones. Now the most important feature of the neural nets is that the features within the layers (e.g. $a_1^{(2)}, a_2^{(2)}, a_3^{(2)}$) are "learnt" automatically, by appropriately tweaking the $\Theta$ vector using an algorithm called the back propagation. We adjust the weights so as to minimize the overall loss function of the network.
 	
 	In case of the neural networks, the loss function is defined as:
-	\begin{equation}
-	J(\Theta) = - \frac{1}{m} \Bigg[\sum_{i=1}^{m} \sum_{k=1}^{K} y_k^{(i)}log(h_\Theta(x^{(i)}))_k + (1-y_k^{(i)}) log(1-(h_\Theta(x^{(i)}))_k) \Bigg] + \frac{\lambda}{2m} \sum_{l=1}^{L-1} \sum_{i=1}^{s_l} \sum_{j=1}^{s_{l+1}} (\Theta _ {ji} ^{(l)})^2
-	\end{equation}
+	\begin{align*}
+	J(\Theta) = - \frac{1}{m} \Bigg[\sum_{i=1}^{m} \sum_{k=1}^{K} y_k^{(i)}log(h_\Theta(x^{(i)}))_k + (1-y_k^{(i)}) log(1-(h_\Theta(x^{(i)}))_k) \Bigg] \\+ \frac{\lambda}{2m} \sum_{l=1}^{L-1} \sum_{i=1}^{s_l} \sum_{j=1}^{s_{l+1}} (\Theta _ {ji} ^{(l)})^2
+	\end{align*}
 	where $l$ is the network layer number, $L$ is the total number of layers, $s_l$ is the number of layers in layer $l$ and $K$ is the number of output units. The first term tries to minimize the difference between the classification computed by the network and the true label. The second term ($\frac{\lambda}{2m} \ldots$) is a regularization term included to prevent the values of the weights from becoming very big.
 	In order to minimize the cost, we also need to know how to compute the gradient with respect to individual connection weights within the nets i.e.:
 	\begin{equation}
@@ -237,7 +258,7 @@
 	\frac{\partial}{\partial \Theta_{ij}^{(l)}} J(\Theta)) = a_j^{(l)} \delta_i^{(l+1)}
 	\end{equation}
 	
-	Given that we know how to calculate the gradient, we can now try to minimize the cost function using gradient descent. As the number of iterations of back propagation increases, the forward propagation sweeps through the net should yield results closer and closer to the ground truth.
+	Given that we know how to calculate the gradient, we can now try to minimize the cost function with respect to all the weights using gradient descent. As the number of iterations of back propagation increases, the forward propagation sweeps through the net should yield results closer and closer to the ground truth.
 	
 	\subsection{Gradient descent}
 	The loss minimization problems often involve gradient methods, such as gradient descent. To see why that is, we note that wherever we find outselves on the graph of a function, we can find the local minimum neighbouring our current location by following the function's negative gradient, i.e. the direction where the function is monotonously decreasing. Once we hit a point where we can't minimize any further, we are at the minimum. Gradient descent does precisely that - it first calculates the derivative of the function and follows the direction that will result in the loss minimization, which can be clearly seen in the figure \ref{fig:graddesc} below.
@@ -249,7 +270,7 @@
 	\end{figure}
 	
 	We can write down an equation summarizing the weight update throughout the network in terms of the gradient of the in-sample error with respect to the weight vector.
-	\begin{align}
+	\begin{align}\label{weight_update}
 	\Delta w &= - \eta \nabla E_{in}(w) \\
 	\textrm{where:} \quad E_{in} &= \frac{1}{N} \sum_{n = 1}^{N} e(h(x_n), y_n)
 	\end{align}
@@ -272,7 +293,7 @@
 	
 	What comes next is the ReLU layer of the \textbf{rectified linear unit}, which plays the role of an activation function preventing fading gradients. 
 	The \textbf{pooling layer} performs a downsampling operation on the thresholded set, in order to reduce the order of computation.
-	Lastly, as in traditional neural nets, there is  a \textbf{fully-connected layer} which constitutes the last step of classification, whose output corresponds to the identified labels.
+	Lastly, as in traditional neural nets, there is  a \textbf{fully-connected layer} which constitutes the last step of classification, whose output corresponds to the identified label probabilities.
 	
 	Since the depth of the convolutional filter is always equal to the depth of its input, the resulting activation map has unit depth (see fig. \ref{fig:conv_net}). To avoid the curse of dimensionality, or explosion of the parameter space size, we assume that the neurons within one activation map share the same weights and bias i.e. if a filter is useful in one area of the image, it will also be useful in the other. Similarly to traditional neural nets, we then use the back-propagation algorithm in order to adjust the neural weights and bias and eventually train the classifier.
 	
@@ -335,10 +356,8 @@
 	
 	The two architectures described in the sections before are very distinct, although they share common problems and hence offer some similar solutions. They have both achieved impressive classification results in the 21k category ImageNet classification task - over 15\% accuracy for DistBelief and stunning 29.8\% for the Adam architecture.
 	
-	The most important takeaways from the papers are:
-	\begin{itemize}
-		\item There are two distinct ways of dealing with the slow machine bottleneck. One is to break down the computation into much smaller loads and process them gradually as the machines become available (DistBelief). The other is to finish computation after a fraction of the model replicas have finished processing (Adam). Both speed up the training, although the latter clearly introduces some information loss.
-	\end{itemize}
+	The most important takeaways from the papers is that there are two distinct ways of dealing with the slow machine bottleneck. One is to break down the computation into much smaller loads and process them gradually as the machines become available (DistBelief). The other is to finish computation after a fraction of the model replicas have finished processing (Adam). Both speed up the training, although the latter clearly introduces some information loss.
+
 	
 	\section{ADMM}
 	\label{ADMM}
@@ -423,7 +442,7 @@
 	
 	The two are deemed as "dual" in the figure, because we are attempting to minimize the difference between them.
 	
-	Coming back to the equation \ref{ADMM_equation}, we can see why the two problems are similar. Noting that $\boldsymbol x$ and $\boldsymbol y$ above (the network parameters in the dual layers) can be treated identically to $x$ and $y$ in the equation, ADMM can help us minimise the difference between the two output vectors. This in turn will ensure that the distributed neural network training will be convergent to a common set of parameters for the network, albeit computed on separate machines.
+	Coming back to the equation \ref{ADMM_equation}, we can see why the two problems are similar. Noting that $\boldsymbol x$ and $\boldsymbol y$ above (the network activations in the dual layers) can be treated identically to $x$ and $y$ in the equation, ADMM can help us minimise the difference between the two output vectors. This in turn will ensure that the distributed neural network training will be convergent to a common set of parameters for the network, albeit computed on separate machines.
 	
 	\section{Architecture}
 	
@@ -479,7 +498,7 @@
 	\subsection{Deep learning frameworks}
 	Recent years have seen a tremendous rate of development of the field of deep learning, and, not surprisingly, a surge in the number of deep learning frameworks. Today the choice is abundant, and the main competitors vary significantly when it comes to performance, implementation and usability. Due to the very technical, low-level nature of the project, significant consideration was given to the choice of an appropriate framework.
 	
-	The most significant frameworks nowadays include Caffe, theano, torch and tensorflow by Google. There is also a number of overlying interfaces and wrappers, such as Keras. The prototype was decided to be built in Caffe for several reasons:
+	The most significant frameworks nowadays include Caffe, Theano, Torch and Tensorflow by Google. There is also a number of overlying interfaces and wrappers, such as Keras. The prototype was decided to be built in Caffe for several reasons:
 	
 	\begin{itemize}
 		\item It has got a well-developed python interface and API.
@@ -490,13 +509,13 @@
 	All of the above certainly come at a cost, though:
 	
 	\begin{itemize}
-		\item As much as it is well supported, Caffe is not very well documented. It's hard to dig into the intricacies of its python API at times.
-		\item Even the python interface requires the usage of prototxt files to define the model architecture and solver details. That reduces the clarity of the overall codebase.
+		\item As much as it is well supported, Caffe is not very well documented. It's hard to dig into the intricacies of its Python API at times.
+		\item Even the Python interface requires the usage of prototxt files to define the model architecture and solver details. That reduces the clarity of the overall codebase.
 	\end{itemize}
 	
 	With all of its pros and cons weighted up, Caffe was decided to be the right tool for prototyping, and hence it was used throughout the first stages of the project, It is absolutely possible and rather advisable to check the feasibility of the described solutions in a different framework.
 	
-	\subsection{Caffe tricks and quirks}
+	\subsection{Caffe tricks and quirks} \label{sec:caffe_tricks}
 	
 	Even with the architecture meticulously planned out and the objectives very clear, the implementation of the prototype turned out to be a very challenging tasks. Sadly, this was not due to the inconsistencies in the model laid out in the previous sections, but rather due to the erratic documentation of Caffe. The most challenging issues encountered during prototyping were:
 	
@@ -512,16 +531,18 @@
 		\begin{equation}
 		w^{t+1} = w^t + \Delta w = w^t - \mu \frac{\delta L}{\delta w}
 		\end{equation}
-		\item At first, the dynamic data layer update was done manually by just overwriting the contents of a randomly initialized layer.  It turned out to be a flawed approach because Caffe does not allow for a manual update of an operational data layer. Even though the values seem to be updated when queried, calling the forward pass function brings them back to the original values. Caffe does have several types of data layers, though, and one of them - MemoryData - turned out to be particularly useful for our application. The data layer is not initialized until the desired data is manully fed into it in the python code, which also allows for dynamic updates between iterations. This also preserves the updated data when forward and backward passes are called.
+		\item At first, the dynamic data layer update was done manually by just overwriting the contents of a randomly initialized layer.  It turned out to be a flawed approach because Caffe does not allow for a manual update of an operational data layer. Even though the values seem to be updated when queried, calling the forward pass function brings them back to the original values. Caffe does have several types of data layers, though, and one of them - MemoryData - turned out to be particularly useful for our application. The data layer is not initialized until the desired data is manully fed into it in the Python code, which also allows for dynamic updates between iterations. This also preserves the updated data when forward and backward passes are called.
 	\end{enumerate}
 	
 	A very similar technique to the one described above was used for communicating the layer conv3p (or conv3') data to net1. The communication was required because the loss of net1 is defined as the norm difference between the dual conv3 and conv3p layers. The data was hence simply copied from net2 and pasted manually into a MemoryData data layer in net1 before the loss computation.
 	
-	There are several ways to implement the \textbf{network communication}. Initial drafts of the framework revolved around using tcp sockets to send the appropriate data in an in-order, error-free manner. Fortunately, the architecture of the server cluster used for the training took advantage of a shared file system, which could be accessed from each of the distinct processing units. That is why the desired parameters were just saved as numpy ".npy" files and easily accessed by the other part of the algorithm at the appropriate stage.
+	There are several ways to implement the \textbf{network communication}. Initial drafts of the framework revolved around using TCP sockets to send the appropriate data in an in-order, error-free manner. Fortunately, the architecture of the server cluster used for the training took advantage of a shared file system, which could be accessed from each of the distinct processing units. That is why the desired parameters were just saved as numpy ".npy" files and easily accessed by the other part of the algorithm at the appropriate stage.
 	
-	One more technical nuance we should mention is the synchronization between the networks. Similarly to the method above, the nets saved the details about their current computation stages in a shared file that could be probed if needed.
+	An immense amount of effort was put into making the programmatic involvement of the user as intuitive and simple as possible. One such simplification was the desired redundancy of creation of a dummy LMDB to initialize the conv3p layer in net1 correctly. Sadly, the use of MemoryData layer was made impossible by uncorrected bugs in the framework.
 	
-	\section{The algorithm}
+	One more technical nuance we should mention is the synchronization between the networks. Similarly to the method above, the nets saved the details about their current computation stages in a shared file that could be probed if needed. In order to avoid reading from an open file, the read statements were each time enclosed by the try...catch clauses which prevented the program from crashing.
+	
+	\section{The algorithm} \label{sec:algorithm}
 	
 	After introducing all the necessary theoretical, architectural and practical insights about the requirements of the project we are now able to design the algorithm used for the dual net training. As stated before, the algorithm is going to try to imitate the \textbf{alternating direction method of multipliers} algorithm. As the name suggests, we are then going to try to optimize the dual nets separately in an alternating manner - that means we will focus on minimizing the loss function of only one of them at any one time. This is achieved by the algorithm summarized in figure \ref{fig:algorithm}.
 	
@@ -546,7 +567,7 @@
 	
 	We can then repeat the above procedure for a few thousand iterations or until some convergence criterion is met.
 	
-	\section{Testing}
+	\section{Experimental setup}
 	
 	The meticulously planned setup above then required a thorough heuristic validation. The hardware used to test the algorithms was a single Nvidia GeForce GTX Titan Graphical Processing Unit for each network, hence two of them in total, placed on two distinct servers within a cluster.
 	
@@ -561,9 +582,9 @@
 		\item Net1 was not converging because the parameters were not appropriately updated based on the computed gradients.
 	\end{itemize}
 	
-	The solutions to these are mentioned in the previous sections as well.
+	The solutions to these are mentioned in the previous sections as well, in particular section \ref{sec:caffe_tricks} - "Caffe tricks and quirks". 
 	
-	Once initial performance metrics started looking positive, i.e. both net1 and net2 losses decreased as the training proceeded, some baseline results and conclusions could have been drawn.
+	This section ("Experimental setup") presents the complete scientific journey made from writing the initial version of the algorithm to obtaining stable and sound results. As can be expected, much practical testing has been done throughout to choose the best set of parameters and architectural choices. These tests should not, however, be treated as experimental results (explained much later), but rather as learning aides which contributed to the development of the overall setup.
 	
 	\subsection{Two objectives}
 	
@@ -575,7 +596,7 @@
 
 	These two objectives are manifested through the two losses, one for each network. The loss for network 1 tries to minimize the difference between the dual layers, whereas the one for network 2 aims to classify the images correctly.
 	
-	Losses that are optimized by the Stochastic Gradient Descent algorithm are in Caffe calculate and represented by layers. A lot of them are available out-of-the-box and even in the default version of Caffe provide reasonable space for fine-tuning the network. In some cases, though, the default layers are not sufficient to achieve the necessary metrics, which is solved by implementing custom layers in C++ or in the Python interface.
+	Losses that are optimized by the Stochastic Gradient Descent algorithm are in Caffe calculated and represented by layers. A lot of them are available out-of-the-box and even in the default version of Caffe provide reasonable space for fine-tuning the network. In some cases, though, the default layers are not sufficient to achieve the necessary metrics, which is solved by implementing custom layers in C++ or in the Python interface.
 		
 	There is little variability in choosing the correct architectural setup to achieve the second convergence objective above. The loss is based on the similarity between the image labels produced by the trained network, and the ground truth. Both are represented as a vector with values corresponding to the probabilities of image classification into each of the classes. The loss is then calculated according to the formula for the cross-entropy classification loss:
 	\begin{equation}
@@ -590,8 +611,7 @@
 	
 	How do we define identical? The convolutional layers we are dealing with are huge, four-dimensional matrices as opposed to simple two-dimensional vectors, hence a more involved similarity metric is required for the comparison. Fortunately, the laws and metrics in linear algebra easily generalize to higher dimensions. Hence, to compare the convolutional dual layers we can use a simple Euclidean loss, as defined by:
 	
-	PUT A LABEL ON THIS - euclidean\_loss\_formula
-	\begin{equation}
+	\begin{equation} \label{euclidean_loss_formula}
 		E=\frac{1}{2N} \sum_{n=1}^{N} ||\hat{y}_n-y_n||^2_2
 	\end{equation}
 	
@@ -603,23 +623,23 @@
 	
 	The point above concerns both net1 and net2, however it is clearly more pronounced in the latter, hence more consideration is given into the possible explanations. Due to the nature of the algorithm, we are building up gradually more volatile calculations, hence the loss of net2 can be expected to vary more. In particular, it should be noted that the input of net2 is not constant, but varying with every iteration adding to the overall volatility.
 	
-	After all, both of the nets seemed to be converging, which can be clearly seen in figure \ref{fig:first_try}. After more tests were carried out, however, it seemed that the convergence of net2's loss is rather dubious. The results weren't always repeatable, and even the "successful" cases have confirmed that local variance in the loss computations was bigger than the overall convergence trend.
+	After all, both of the nets seemed to be converging, which can be clearly seen in figure \ref{fig:net2_no_convergence_default}. After more tests were carried out, however, it seemed that the convergence of net2's loss is rather dubious. The results weren't always repeatable, and even the "successful" cases have confirmed that local variance in the loss computations was bigger than the overall convergence trend.
 	
 	\begin{figure}[!h]
 		\centering
-		\includegraphics[page=1,width=0.9\textwidth]{first_try.png}
-		\caption{\label{fig:first_try}{The training losses for the prototype framework.}}
+		\includegraphics[page=1,width=0.9\textwidth]{net2_no_convergence_default.png}
+		\caption{\label{fig:net2_no_convergence_default}{The training losses for the prototype framework.}}
 	\end{figure}
 	
 	The pessimistic conclusions were further confirmed by running a classification task using a trained model. Out of a 1000 test samples, only about 100 were classified correctly. 1 in 10. This was suspiciously close to the number of image classes, which suggested that our method is virtually equivalent to random guessing.
 	
-	After setting up more probing mechanisms within the code an interesting pattern was spotted. As the training progressed, the convolutional layers produced consecutively smaller data i.e. the norm of the output matrices decreased with every iteration. The reason for this is apparent when we try to understand the objective of the loss layer - \textbf{to minimize the difference between the two convolutional layers}. What does that mean? That we are either going to:
+	After setting up more probing mechanisms within the code an interesting pattern was spotted. As the training progressed, the convolutional layers produced consecutively smaller data i.e. the norm of the output matrices decreased with every iteration to eventually reach value worryingly close to 0. The reason for this is apparent when we try to understand the objective of the loss layer - \textbf{to minimize the difference between the two convolutional layers}. What does that mean? That we are either going to:
 	\begin{enumerate}
 		\item Force the values of the convolutional layers' outputs close together.
 		\item Make the outputs small enough that no matter what the relative difference between them is, the absolute one is going to be tiny!
 	\end{enumerate} 
 	
-	The second point explains the exponentially decreasing net1 loss in figure \ref{fig:default_losses}. At the end of the training, all that the network produces is matrices of zeroes, which are indeed close to each other, but do not satisfy our second training objective - to get closer to the correct classification.
+	The second point explains the exponentially decreasing net1 loss in figure \ref{fig:net2_no_convergence_default}. At the end of the training, all that the network produces is matrices of zeroes, which are indeed close to each other, but do not satisfy our second training objective - to get closer to the correct classification.
 	
 	Some mechanism had to be put in place which would inhibit the layer from optimizing its objective by simply making all of the values tiny. That mechanism is normalization - we do not want the absolute value of the conv layers' difference to be small - we just want it to decrease relative to what the current norm size of the layers is.
 	
@@ -629,7 +649,7 @@
 	
 	None of the built-in Caffe mechanism allowed for introducing a normalization term to the euclidean loss. Fortunately, Caffe does allow for custom layer creation which made it possible to define a \textbf{Euclidean Loss Layer with Normalization}.
 	
-	Conveniently, the examples online (\cite{caffe2016loss}) provided a custom python implementation of the Euclidean Loss Layer analysed before. It was decided to first contrast the performance of the layer found online in order to build the normalized loss layer on a proven baseline. The below code listing shows the parameter update step during forward propagation of the network. it is the exact programmatic counterpart of equation \ref{euclidean_loss_formula}.\\
+	Conveniently, the examples online (\cite{caffe2016loss}) provided a custom python implementation of the Euclidean Loss Layer analysed before. It was decided to first contrast the performance of the layer found online in order to build the normalized loss layer on a proven baseline. The below code listing shows the parameter update step during forward propagation of the network. It is the exact programmatic counterpart of equation \ref{euclidean_loss_formula}.
 	
 	\begin{lstlisting}[caption={Defining the loss in a custom loss layer.}\label{lst:custom_loss},language=Python]
 	def forward(self, bottom, top):
@@ -647,18 +667,18 @@
 
 	To trace down the reason for net1's flat learning curve the gradients of the individual net parameters with respect to the overall loss were probed. Not surprisingly, it turned out that they were all zero, leading to virtually no learning. The reason for that turned out not to be architectural, but rather technical - the custom python layers in Caffe have to be identified in the training .prototxt file by annotating them with "loss\_weight: 1". Otherwise no backpropagation is ran any of the layers backing the final one. After fixing the technical inconsistency, backpropagation on all the appropriate layers was run and the gradients were indeed calculated correctly.
 	
-	What is interesting, though, is that the above setup, alas largely incorrect, achieved surprisingly high classification results. On a testing sample of a 1,000 images, it managed to correctly identify the labels of 52.53\% of them. This can be contrasted to the classification accuracy of 63.75\% of the single network setup.
+	What is interesting, though, is that the above setup, alas largely incorrect, achieved surprisingly high classification results. On a testing sample of a 1,000 images, it managed to correctly identify the labels of 52.53\% of them. This can be contrasted to the classification accuracy of 63.75\% of the single network setup after a similar number of iterations.
 	
-	The impressive conclusion from the above is that since the bottom part of the dual network was virtually useless (its loss was constant throughout the training), all learning has occured in the latter part i.e. only using one convolutional layer. This is truly remarkable, given how close the classification accuracy was to the fully-leveraged single-net architecture.
+	The impressive conclusion from the above is that since the bottom part of the dual network was virtually useless (its loss was constant throughout the training), all learning has occured in the top part i.e. only using one convolutional layer. This is truly remarkable, given how close the classification accuracy was to the fully-leveraged single-net architecture.
 	
 	\subsubsection{Corrected custom setup}
 	
-	Once the error was identified, and the "loss\_weight: 1" term was added to the prototxt file, the setup was ready for the testing using the corrected custom loss layer. To first confirm that it is consistent with the default Euclidean Loss Layer used in the training before (fig. \ref{fig:first_try}), the custom layer was used in its default state, without any normalization terms introduced just yet. The result is presented in figure \ref{fig:second_try}. It can be observed that the loss trends are similar to the ones exhibited by the Caffe default setup. Admittedly, it is even smoother and more predictable, which constitutes an easily-interpretable baseline result that can be used for comparison later.
+	Once the error was identified, and the "loss\_weight: 1" term was added to the prototxt file, the setup was ready for the testing using the corrected custom loss layer. To first confirm that it is consistent with the default Euclidean Loss Layer used in the training before (fig. \ref{fig:net2_no_convergence_default}), the custom layer was used in its default state, without any normalization terms introduced just yet. The result is presented in figure \ref{fig:net2_no_convergence_custom}. It can be observed that the loss trends are similar to the ones exhibited by the Caffe default setup. Admittedly, it is even smoother and more predictable, which constitutes an easily-interpretable baseline result that can be used for comparison later.
 	
-	\begin{figure}[!h]
+	\begin{figure}[!ht]
 		\centering
-		\includegraphics[page=1,width=0.9\textwidth]{second_try.png}
-		\caption{\label{fig:second_try}{The training losses with the "default" custom layer in place.}}
+		\includegraphics[page=1,width=0.9\textwidth]{net2_no_convergence_custom.png}
+		\caption{\label{fig:net2_no_convergence_custom}{The training losses with the "default" custom layer in place.}}
 	\end{figure}
 	
 	\subsubsection{Normalization term }
@@ -675,85 +695,283 @@
 	E=\frac{1}{2N} \sum_{n=1}^{N} \frac{ ||\hat{y}_n-y_n||^2_2}{\sqrt{||\hat{y_n}||^2_2}} 
 	\end{equation}
 	
-	This was indeed simpler to differentiate ()as the $\hat{y}_n$ term was just a constant in each case) and hence tested using a variety of parameters.
+	This was indeed simpler to differentiate as the $\hat{y}_n$ term was just a constant in each case) and hence tested using a variety of parameters.
 	
 	It was hoped that the normalization term will make the loss values consistent, and then attempt to indeed minimize the difference between them instead of just bringing the absolute parameter values close to zero. This first attempt at normalization did not result in a significant improvement in performance. The loss values were indeed bounded to comparable values (the loss decrease was not exponential as before), but dropped to zero very quickly. After that, the outputs of the layers quickly overflowed.
 	
-	What brought about some promising conclusions was drastically decreasing the learning rate of the net1's custom loss layer. It turned out that as long as net1's loss is not changing much, more convergence can be observed in net2. This suggested a whole new approach to looking at ADMM within the algorithm used. Instead of trying to optimize each loss at every iteration, we would now hold one of the losses for many iterations, let it converge a little, and then move on to optimization of the other loss. It was then decided to take a step back and abandon the idea of normalization, for the sake of better choice of the training parameters, particularly the learning rate. This let us also use the default implementation of the Euclidean loss, which was beneficial due to the programmatic optimizations for such layers in Caffe. nevertheless, the custom layer analysis in the previous chapter  contributed to the progress of the project as the role of various parameters in the training was better understood.
+	What brought about some promising conclusions was drastically decreasing the learning rate of the net1's custom loss layer. It turned out that as long as net1's loss is not changing much, more convergence can be observed in net2. This suggested a whole new approach to looking at ADMM within the algorithm used. Instead of trying to optimize each loss at every iteration, we would now hold one of the losses for many iterations, let it converge a bit, and then move on to optimization of the other loss. It was then decided to take a step back and abandon the idea of normalization, for the sake of better choice of the training parameters, particularly the learning rate. This let us also use the default implementation of the Euclidean loss, which was beneficial due to the programmatic optimizations for such layers in Caffe. Nevertheless, the custom layer analysis in the previous chapter  contributed to the progress of the project as the role of various parameters in the training was better understood.
 	
 	\subsection{Rethinking ADMM}
 
 	\subsubsection{Back to the default, non-normalized approach}
 	
+	As mentioned in the previous chapter, although deemed brilliant at first, the idea of normalizing the loss in order to achieve a more consistent convergence behaviour for net1 seemed not so great after some testing. What seemed great, though, was adjusting the parameters appropriately, particularly with the well-optimized training paradigms offered by Caffe by default. Hence the idea of implementing a custom Euclidean Loss Layer was abandoned in favour of the default implementation in vanilla Caffe.
+	
+	This should be treated as no defeat, though, because what was discovered during the testing thus far was that letting the networks converge for a little longer individually might lead to a more consistent convergence performance overall. To rethink convergence we shall go back all the way to Section \ref{sec:algorithm} - "The algorithm" and revise our understanding of ADMM.
+	
 	\subsubsection{Individual convergence}
+	
+	ADMM breaks down optimization into two distinct phases, with dual variables being optimized sequentially. The initial understanding of such optimization turned out to be ineffective though. The algorithm presented before only carried out one iteration of Stochastic Gradient Descent to update each of the dual parameters. It turns out, however, that this approach:
+	\begin{itemize}
+		\item not only introduces unnecessary variance to the training loss due to abrupt change of the parameters communicated between the networks
+		\item but also prevents either of the parameters to enjoy the possibility of being optimized in a stable, reasonably static environment.
+	\end{itemize}
+
+	Such theoretical consideration, confirmed by the heuristic evaluation of the algorithm presented in the past few sections, encouraged proposing a new version of the algorithm. In such case, each of the networks would be given time to converge individually for an agreed number of epochs, before handing its parameters and state over to the other network and hence proceeding to the subsequent part of the optimization. To better illustrate this idea, a figure similar to \ref{fig:algorithm} is produced below (fig. \ref{fig:algorithm_revisited}).
+	
+	\begin{figure}[!h]
+		\centering
+		\includegraphics[page=1,width=0.9\textwidth]{algocode_revisited.pdf}
+		\caption{\label{fig:algorithm_revisited}{The modified version of the training algorithm. Networks 1 and 2 converge separately, with one training and the other idling at one chosen time.}}
+	\end{figure}
+
+	The network is trained for a defined number of sequences, each of which consist of a set number of training epochs for net1 followed by a set number of training epochs for net2. The exact number of training epochs was chosen heuristically to give the most optimal performance in terms of the speed of convergence and variance of the loss function. Those figures will be cited whenever experimental results are presented.
 	
 	\subsection{Adjusting the parameters}
 	
+	As mentioned before, once the algorithm was decided upon, a lot of care and time was put into understanding the influence of various training parameters on the behaviour of the networks and adjusting them in order to yield the most optimal performance. The two found to be the most crucial ones were the batch size and the learning rate.
+	
 	\subsubsection{Batch size}
+	
+	Batch size is the number of images taken into account during each iteration of the Stochastic Gradient Descent as data points. Its importance and influence on the overall training success can be explained in terms of a few deep learning considerations:
+	\begin{enumerate}
+		\item A bigger mini-batch helps to streamline the calculations executed with every training iteration. In simple terms, comparable convergence of a network using only one image in a batch will take N times longer than training of an identical network with a mini-batch size of N. \\ In theory, the same number of operations is going to be performed. The computational cost of multiplying big matrices is however smaller than the cost of doing those operations during separate iterations. Additionally, less time is spent on propagating the results throughout the network i.e. fewer forward- and backpropagations are concluded before convergence.
+		\item Stochastic Gradient Descent works, because the training loss calculated during one of its iterations is deemed to approximate the actual training loss as the training proceeds. The smaller the batch size, though, the bigger the variance of the individual training loss updates, as the sample is representative of the population as a whole, and hence more variable from update to update.
+		\item On the other hand, because the variability of updates decreases as the training proceeds, SGD is more likely to get trapped in local maxima or minima of the loss function. This is because the algorithm does not move much on the loss plane from iteration to iteration. It can be easily spotted as "spikes" in the training loss curve. If the batch size is small, the loss function variations are often big enough to escape local extrema.
+	\end{enumerate}	
+
+	Regardless of the exact batch size, one certain conclusion is that we can fit a lot more data on the network. An alternative to increasing the batch size is increasing the number of convolutional layers. This can prospectively lead to higher classification results, because exponentially more complex functions can be learnt with incrementally increasing network sizes.
+	
+	\subsubsection{Learning rate}
+	
+	The convergence of the loss function seemed to be particularly sensitive to the learning rate. As a quick reminder, let's go back to formula \ref{weight_update}:
+	\begin{align*}
+	\Delta w &= - \eta \nabla E_{in}(w) \\
+	\textrm{where:} \quad E_{in} &= \frac{1}{N} \sum_{n = 1}^{N} e(h(x_n), y_n)
+	\end{align*}
+	
+	The learning rate governs how big we want the weight updates to be. This in turn determines the size of our algorithm's moves on the loss function plane. Consequently, this affects the speed at which we approach the function's minimum and whether or not we will be able to land inside it altogether. This is neatly illustrated in figure \ref{fig:learning_rate_overshoot} below. If the learning rate is too high, we may overshoot and miss the minimum. This is solved by using adaptive learning rate, which slows down as the algorithm approaches the minimum. That is also the strategy used by the Caffe SGD Solver.	
+	
+	The learning rate turned out to be the single most important parameter affecting the dual net convergence. As mentioned before, the initial convergence behaviour was meagre and hard to observe, which was significantly improved by drastically decreasing the learning rate for the training of network1. Its exponential loss function decrease was thus controlled and stabilized, which in turn permitted for undisturbed convergence of network 2. 
+	
+	During testing, the learning rate was varied by factors of 10 so as to achieve the most stable and reasonably rapid convergence. Once the stability was achieved, within a range of values it seemed that the learning rate varied the pace of convergence rather than the curve's general shape, which is expected.
+	
+	\begin{figure}[!h]
+		\centering
+		\includegraphics[page=1,width=0.9\textwidth]{learning_rate_overshoot.pdf}
+		\caption{\label{fig:learning_rate_overshoot}{An illustration of the learning rate variation. The function on the left exhibits slow, yet optimal convergence. In the middle the convergence is much faster, but virtually non-existent because the algorithm misses the optimal point. The best of both worlds is presented in the rightmost figure. The learning rate is adaptive, and slows down when minimum is approached.}}
+	\end{figure}
+	
 		
-	To run the tests, the batch size was increased to twice its previous size every time until it filled up the memory of the GPU completely. It turned out that:
+	\subsection{Final setup}
+	
+	Once the algorithm has been finalised, the parameters thoroughly researched and Caffe understood it was high time to carry out the final experiments in order to test the dual network architecture. This section aims to run through the most important parameters in the model with a short justification of their choice. It is worth noting that some of those parameters were chosen highly practically, by observing tens of possible convergence behaviours and choosing the one seeming to be the most healthy. In general, whenever there was uncertainty over which strategy to choose in order to pick the best parameter value the one resulting in the most optimal behaviour of the setup was chosen.
+	
+	\subsubsection{Batch size}
+	
+	The batch size was set to \textbf{1000 samples} for both the single and dual network setup. This value was found to yield the most stable, smooth performance, particularly for the dual net architecture. The learning curve did exhibit occasional peaks which were however insignificant compared to the overall trend.
+	
+	\subsubsection{Learning rate}
+	
+	For the dual setup, the learning rate was chosen to be maximal not allowing either of the networks to go unstable. It was hard to choose a learning rate value for the single net which would be equivalent to the first one, though. That is because the learning rate in the dual setup governs separate parts of the network, and hence cannot be taken as indicative of an equivalent value for the single net. To solve the conundrum, an experimental value was chosen which resulted in the most optimal training performance for network 1. The precise values were:
+	
+	\begin{itemize}
+		\item Single net setup: $\eta=1\times10^{-3}$
+		\item Dual net setup, net1: $\eta=5\times10^{-11}$
+		\item Dual net setup, net2: $\eta=4\times10^{-3}$
+	\end{itemize}
+	
+	\subsubsection{Number of training epochs}
+	
+	It was the set of parameters which was the hardest to choose according to the rules of scientific rigour. The choice was highly practical and depended on observing many different parameter combinations. The final setup ran 50 iterations of network 1 and 150 iterations of network 2 for each training sequence. The training was then carried out for 40 of those sequences, resulting in a total of 8000 iterations.
+	
+	Since the training dataset consisted of 50,000 images and a batch of 1000 was used for each iteration of Stochastic Gradient Descent, we can calculate the number of epochs ran for each of the nets in one sequence as:
+	\begin{align}
+		\frac{\text{number of sequences} \times \text{batch size}}{\text{total dataset size}}
+	\end{align}
+	
+	Hence \textbf{each sequence} is equivalent to \textbf{$\frac{50\times1,000}{50,000}=\boldsymbol1$ training epoch for net1 and $\frac{150\times1,000}{50,000}=\boldsymbol3$ training epochs for net2}. The total number of epochs shall be defined as the bigger of the two, so in total $3\times40=\boldsymbol{120}$ \textbf{training epochs}. 
+	
+	In order to achieve comparable results, the single network setup was decided to be trained on the same number of epochs. 120 epochs is thus equivalent to $120\times\frac{50,000}{1,000}=6,000$ iterations.	
+	
+	\subsubsection{Other parameters}
+	
+	The SGD Solver in Caffe lets us choose many more parameters for training, which in our case were just left as default and the same for both architectures. Consequently:
+	\begin{itemize}
+		\item lr\_policy: "step"
+		\item gamma: 0.1
+		\item stepsize: 2500
+		\item momentum: 0.9
+		\item weight\_decay: 0.0005
+	\end{itemize}
+	
+	lr\_policy is the learning rate decay policy. The step option, updates the learning rate as $base\_lr \times gamma ^ {\lfloor \frac{iter}{step} \rfloor}$. Gamma is the learning rate multiplicative factor. Stepsize is how often we drop the learning rate. Momentum helps pushing the algorithm out of being stuck on local extrema. Finally, weight\_decay prevents overfitting by regularizing the net's parameters.
+	
+
+	\subsubsection{Dataset and Caffe input setup}
+	
+	The dataset used for baseline testing is, as mentioned earlier, cifar10 consisting of 50,000 train and 10,000 test images in 10 classes. They are fed into the network using an LMDB file generated before training. Another LMDB dummy file consisting of white images was generated to initialize conv3p layer before data from net2 is fed into it.
+	
+	\subsubsection{Parameter summary}
+	
+	The summary of the training parameters used is presented in table \ref{tab:parameters}.
+	
+	\begin{table}[ht!]
+		\centering
+		\caption{The parameters used for baseline result generation.}
+		\label{tab:parameters}
+		\begin{tabular}{|l|c|c|c|}
+			\hline
+			& \multicolumn{2}{c|}{dual net} & single net \\ \hline
+			& net1          & net2          & net        \\ \hline
+			Batch size                        & 1000          & 1000          & 1000       \\ \hline
+			Learning rate                     & $5\times10^{-11}$             & $4\times10^{-3}$             & $1\times10^{-3}$         \\ \hline
+			Number of iterations per sequence & 50            & 150           & 150        \\ \hline
+			Number of epochs per sequence     & 1             & 3             & 3          \\ \hline
+			Number of training sequences      & 40            & 40            & 40         \\ \hline
+			Total number of iterations        & 2000          & 6000          & 6000       \\ \hline
+			Total number of epochs            & 40            & 120           & 120        \\ \hline
+			lr\_policy                        & step          & step          & step       \\ \hline
+			gamma                             & 0.1           & 0.1           & 0.1        \\ \hline
+			stepsize                          & 2500          & 2500          & 2500       \\ \hline
+			momentum                          & 0.9           & 0.9           & 0.9        \\ \hline
+			weight\_decay                     & 0.0005        & 0.0005        & 0.0005     \\ \hline
+		\end{tabular}
+	\end{table}
+
+	\section{Results}
+	
+	The careful analysis of the design choices and tradeoffs permitted us to decide on the architecture and parameter choices yielding the most promising experimental results. Even though the basic training and analysis have been carried out throughout the execution of the project it is now time to generate baseline results rigorously for the final comparison. This will give us the grounding to contrast the newly proposed dual architecture with the traditional setups.
+
+	To do such an evaluation, though, we firstly need to define the metrics over which the individual performances are going to be contrasted. This is described in more detail in the section below.
+	
+	\subsection{Evaluation metrics}
+	
+	We are going to contrast the performance of both setups based on their:
+	\begin{enumerate}
+		\item Classification accuracy
+		\item Loss function value
+		\item Training time
+		\item Maximum batch size
+	\end{enumerate}
+
+	The first one is the most obvious and should serve as the best indicator of the performance of novel setups. After all, the underlying motivation of all machine learning ventures is improving the classification accuracy.
+	
+	The loss function value relates very closely to the classification accuracy. The trend observed there should be similar to the accuracy one, but it is nevertheless presented in order to build the most complete image of the training.
+	
+	The time metric relates to the dynamics of the training i.e. the speed at which the loss curves approach the plateau.
+	
+	Networks were ran independently three times using the parameters mentioned in table \ref{tab:parameters}. In the sections to follow, the results are presented individually in addition to being averaged out to mitigate any influence of the network initialization and random batch choices.
+	
+	Maximum batch size is going to indicate whether we were indeed able to make the deep learning setup more space-efficient, prospectively allowing for training of even deeper topologies.
+	
+	\subsection{Classification accuracy}
+	
+	Even though the values eventually achieved are similar, the training dynamic of both setups was slightly different. To contrast the accuracy in the most meaningful way, we are thus going to calculate the classification accuracy at different stages of the training, as defined by the number of elapsed training epochs. The interval was chosen to be 15 epochs, which nicely divides the total number of epochs, 120, giving us 8 data points for comparison between the two setups.
+	
+	The classification accuracy was calculated by predicting the label of the images in the testing dataset, hence generating 10,000 datapoints which were consecutively averaged. This was done three times over three separately trained models.
+	
+	\begin{table}[ht!]
+		\centering
+		\caption{The classification accuracies}
+		\label{tab:accuracies}
+		\begin{tabular}{|c|c|c|c|}
+			\hline
+			\begin{tabular}[c]{@{}c@{}}Number of\\ epochs\end{tabular} & \begin{tabular}[c]{@{}c@{}}Single net\\average\\accuracy\end{tabular} & \begin{tabular}[c]{@{}c@{}}Dual net\\average\\accuracy\end{tabular} & \begin{tabular}[c]{@{}c@{}}single/dual net\\ average accuracy difference\end{tabular} \\ \hline
+			15                                                         & 77.64\%                                                           & 71.94\%                                                         & 5.46\%                                                                           \\ \hline
+			30                                                         & 77.56\%                                                           & 72.00\%                                                         & 5.46\%                                                                           \\ \hline
+			45                                                         & 77.41\%                                                           & 71.96\%                                                         & 5.45\%                                                                           \\ \hline
+			60                                                         & 76.99\%                                                           & 71.73\%                                                         & 5.22\%                                                                           \\ \hline
+			75                                                         & 77.05\%                                                           & 71.48\%                                                         & 5.41\%                                                                           \\ \hline
+			90                                                         & 75.21\%                                                           & 69.69\%                                                         & 4.90\%                                                                           \\ \hline
+			105                                                        & 72.12\%                                                           & 66.52\%                                                         & 5.89\%                                                                           \\ \hline
+			120                                                        & 65.15\%                                                           & 61.49\%                                                         & 5.33\%                                                                           \\ \hline
+		\end{tabular}
+	\end{table}
+
+	The classification accuracy, presented in table \ref{tab:accuracies}, exhibits a clearly increasing trend - as the training progresses, both the single and dual network architectures get better at recognizing the image classes. The difference between the two accuracies is typically around 5\% and never exceeding 5.5\%.
+	
+	Within the deep learning community, where tenths of percent of classification accuracy improvement result from months of research, such a deficiency would be quite pronounced. This project's main objective, though, was to increase the amount of data that can be used for training of a deep network while, at the same time, showing that such a network could successfully converge and classify. As such, the objective was most definitely met, and the $\mathtt{\sim}$5\% classification accuracy difference should be treated as a sign of successful training rather than performance deficiency. Further, it is a metric that most certainly has a potential for being improved.
+		
+	\subsection{Loss function}
+	
+	The simplest way to analyse the loss function healthiness is looking at the training curves, particularly the ones presented in figures \ref{fig:step_pattern}, \ref{fig:final_trace} and \ref{fig:final_trace_nosteps}. The first one clearly exhibits the expected step pattern due to the algorithm optimizing the networks sequentially one after another. The second one retains the step pattern and contrasts the full training curve with the one for a single network. The convergence trend is evidently pronounced. The third figure pronounces the trend even more, contrasting the final training curves with the steps removed, and hence showing only the non-idle iterations.
+	
+	\begin{figure}[!hb]
+		\centering
+		\includegraphics[page=1,width=0.8\textwidth]{step_pattern.png}
+		\caption{\label{fig:step_pattern}{The characteristic "step" pattern exhibited by the neural network. During one sequence, each of the nets optimizes its loss function and then hands the training over to the net that was idling before.}}
+	\end{figure}
+	
+	\begin{figure}[!hb]
+		\centering
+		\includegraphics[page=1,width=0.8\textwidth]{final_2.png}
+		\caption{\label{fig:final_trace}{The final loss convergence pattern for the single and dual network architectures. The step pattern for the training of the dual network is clear and visible, although the convergence trend is very pronounced and dominating over the idling periods.}}
+	\end{figure}
+	
+	\begin{figure}[!hb]
+		\centering
+		\includegraphics[page=1,width=0.8\textwidth]{final_nosteps.png}
+		\caption{\label{fig:final_trace_nosteps}{The final loss convergence pattern for the single and dual network architectures. The step pattern is now removed and only the non-idling iterations' losses are shown.}}
+	\end{figure}
+	
+	\subsection{Training time}
+	
+	The training time is the total training time spent on convergence. This means that in case of the dual network it is calculated separately for network 1 and network 2, as only the latter should be contrasted with the value for a single network.
+	
+	It took 4 hours 21 minutes to train single network, on average. This is to be contrasted with 15 hours 54 minutes to train the dual one, with 1 hours 28 minutes spent on optimizing net's objective, and 14 hours 26 minutes spent on optimizing net 2's objective. It clearly takes a lot longer to train the dual network architecture, by a factor of 3.65.
+	
+	This can most definitely be considered a long time. Speeding up the training procedure was not, however, an objective of the project. We are training two separate networks in a sequential manner with many operations more costly and less optimised as is the case in a well-developed framework like Caffe. Such a result should not constitute a reason to worry, though, as the main objectives of the project were met, whereas with further development the programmatic framework can be optimised for speed.
+		
+	\subsection{Maximum batch size}
+	
+	The novel dual net architecture was predicted to be able to accomodate a batch size much bigger than the one in the traditional, singular network setup. During testing, the batch was increased to twice its previous size every time until it filled up the memory of the GPU completely. It turned out that:
 	\begin{itemize}
 		\item The biggest batch size that can be fitted on the single net topology is 2608 samples.
 		\item The biggest batch size that can be fitted on the dual net topology is 4095 samples.
 	\end{itemize}
 	
-	These results are outstanding - by breaking down the network between two units, we were able to increase the amount of data that can be processed on them together by a factor of two.
+	These results are outstanding - by breaking down the network between two units, we were able to increase the amount of data that can be processed on them together by a factor of two. This is undoubtedly one of the biggest successes of the project and a completion of the main objective - extending the size of data batches that can be used during deep network training.
 	
-	The significance of these results can be explained in terms of several deep learning facts:
+	\subsection{Another dataset}
+	
+	To validate the experimental results, the dual network architecture was trained and tested on another dataset. That was chosen to be MNIST, which is a database of handwritten digits consisting of 60,000 training and 10,000 test images. The training proceeded as expected and the project objectives were again confirmed.
+	
+	\section{Conclusions}
+	
+	"Distributed Neural Network Training" is the title of the thesis and, to an extent, its problem formulation. Let's recap on the initial objective of the project:
+	
+	\textbf{"To design and implement an algorithm training a deep neural network on two separate machines, using the Alternating Direction Method of Multipliers technique to allow for the convergence of two network performance objectives"}
+	
+	The two network performance objectives which we are trying to minimize are:
 	\begin{enumerate}
-		\item A bigger mini-batch helps to streamline the calculations executed with every training iteration. In simple terms, comparable convergence of a network using only one image in a batch will take N times longer than training of an identical network with a mini-batch size of N. \\ In theory, the same number of operations is going to be performed. The computational cost of multiplying big matrices is however smaller than the cost of doing those operations during separate iterations. Additionally, less time is spent on propagating the results throughout the network i.e. fewer forward- and backpropagations are concluded before convergence.
-		\item Regardless of the batch size, one certain conclusion is that we can fit a lot more data on the network. An alternative to increasing the batch size is increasing the number of convolutional layers. This can prospectively lead to higher classification results, because exponentially more complex functions can be learnt with incrementally increasing network sizes.
-	\end{enumerate}
-
-	\begin{figure}[!h]
-		\centering
-		\includegraphics[page=1,width=0.9\textwidth]{big_batch.png}
-		\caption{\label{fig:big_batch}{Training curves of the single and dual network setup using maximum batch sizes (2608 samples in single and 4096 samples in dual). CHANGE ME}}
-	\end{figure}
-
-	The figure \ref{fig:big_batch} shows the training curves for both of the network architectures using maximal mini-batch sizes. The learning curves are clearly smooth at times but also exhibit some spiking behaviour. This can be easily explained.
-	
-	The smoothness comes from low variance of the gradient calculations. The bigger the mini-batch, the more representative it is of the whole population, and hence it can guarantee very stable gradient descent.
-	
-	On the other hand, the stochasticity of the gradient descent is somewhat lost as the batch increases. The spikes occur because the loss function is getting trapped in local minima of the loss functions that would normally be quickly escaped fromt thanks to probabilistic choice of the samples forming the dataset.
-	
-	\subsubsection{Learning rate}
-	
-	In the pursuit of a solution to the dual convergence problem many attempts were made at adjusting the model parameters in order to achieve more promising results. One to which the convergence seemed particularly sensitive was, not surprisingly, the learning rate. While researching the possible explanations for devastatingly rapid convergence or increasing loss function, many specialist forums suggested adjusting the learning rate as one of the main factors affecting the training. Sadly, in most of the cases the learning rate affected just that - the rate of learning, the speed at which our network is approaching the value it is converging to. Apart from a couple of extreme cases (not worth mentioning), varying the learning rate simply stretched or shrinked the learning curve across the iterations appropriately. This can be very vividly seen on figure \ref{fig:learning_rate_variation}, where the two networks were trained using the same parameters and under identical circumstances, save the learning rate which differed by a factor of a 100 between the two.
-	
-	
-	\newpage
-	\clearpage
-	\subsection{things to do in this report}
-	\begin{enumerate}
-		\item tried to use memorydata layer but didn't work
-	
-			
-
+		\item For network 1 - the difference between the dual convolutional layers' values
+		\item For network 2 - the difference between the computed image labels and the ground truth
 	\end{enumerate}
 	
-	Rules of thumb for setting the learning rate α
-	α
-	and momentum μ
-	μ
-	A good strategy for deep learning with SGD is to initialize the learning rate α
-	α
-	to a value around α≈0.01=10−2
-	α
-	≈
-	0.01
-	=
-	10
-	−
-	2
-	, and dropping it by a constant factor (e.g., 10) throughout training when the loss begins to reach an apparent “plateau”, repeating this several times. Generally, you probably want to use a momentum μ=0.9
-	μ
-	=
-	0.9
-	or similar value. By smoothing the weight updates across iterations, momentum tends to make deep learning with SGD both stabler and faster.
+	As proven in the previous section, both of those were duly met, since the losses for both networks converged and were thus optimised. This was additionally confirmed by comparing the performance of the dual network to the traditional unified approach. The performance, as measured by the classification accuracy, didn't differ by more than 6\%.
 	
-	This was the strategy used by Krizhevsky et al. [1] in their famously winning CNN entry to the ILSVRC-2012 competition, and Caffe makes this strategy easy to implement in a SolverParameter, as in our reproduction of [1] at 
-	http://caffe.berkeleyvision.org/tutorial/solver.html
+	As important as the result itself, though, was the creative process connected with coming up with an appropriate programmatic setup in order to achieve the above objectives. This started with finding an appropriate deep learning tool allowing for low-level variability and offering good support and decent amount of documentation. One such framework is Caffe, which was chosen due to its long and continued support, unanimous support from the academic community and a not very steep learning curve.
+	
+	The network architecture used was a heuristic choice. It bases itself quite heavily on the CaffeNet architecture, boasting popularity in the deep learning community. The 4 convolutional layers were broken down in two parts with conv1, conv2 and conv3 belonging to the first network and conv3p (the conv3 dual layer) and conv4 belonging to the second network.
+	
+	Before the training started many problems were encountered with the sole setup of the framework. It turned out that a few critical components are not very well documented and hence the documentation had to be replaced with long hours of googling and reading through the source code of the framework. Several technical compromises had to be made in order to bypass the unresolved bugs in the software. The most notable is the inability to initialise the dual conv3p as a MemoryData layer, which required its initialisation from a "dummy" LMDB file.
+	
+	The classification results obtained were, while not perfect, promising, and most definitely point towards the success of the approach. It takes nearly 4 times longer to train the dual network setup, however speed of training was not one of the objectives and as such, shouldn't be taken as a fault of the framework.
+	
+	Most successfully, though, the maximum batch size which could be fitted on the network architecture increased nearly by a factor of 2, which is the single most important and disrupting result of the project.  
+	
+	\subsection{Future recommendations}
+	
+	The initial success of the framework is proven, however by no means complete. Over the course of development, many areas of improvement and development were identified. Some were not completed because of the time constraints and some, on the other hand, would require a complete reorganization of the setup. They are all summarized in the points below.
+	
+	\begin{itemize}
+		\item \textbf{Break it down further!} One inevitable progression of the project would be to test splitting a large deep network architecture between more than two GPUs. This would ideally allow for utilising much larger architectures, and hence allowing for bigger improvements in the classification accuracy.
+		\item \textbf{Make it easy!} Particular care was taken to streamline the code and make it as easy to understand and develop on top of by new users. This is a feat with no clear end, however, and more work should be spared on making the code even more straightforward to run and work out of the box.
+		\item \textbf{Migrate!} Caffe, even though it clearly did its job in this project, is now an ageing platform. More modern ones, particularly TensorFlow are on the rise and their possible influence on the project should be researched further. With the algorithms and architectures already defined, such exploration should be much facilitated if not easy.
+	\end{itemize}
+	
+	In general, it is hoped that the project will stay in continual development.
 	
 	\newpage
 	

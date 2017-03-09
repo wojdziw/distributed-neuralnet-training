@@ -8,19 +8,19 @@ PLOT_DUAL = True
 PLOT_SINGLE = True
 
 net1_auto_yscale = True
-net2_auto_yscale = True
+net2_auto_yscale = False
 net12_auto_yscale = True
 
 net1_full_range = True
 net2_full_range = True
 net12_full_range = True
 
-net1_without_steps = False
-net2_without_steps = False
+net1_without_steps = True
+net2_without_steps = True
 
 net1_seq_size = 50
 net2_seq_size = 150
-no_seqs = 1
+no_seqs = 40
 
 # Checking if the loss OS paths exist
 dual_path_exists = os.path.isfile("../../snapshots/net1_losses.npy")
@@ -86,7 +86,7 @@ if PLOT_DUAL and dual_path_exists:
 	if (not net1_auto_yscale):
 		plt.ylim(25000,30000)
 	plt.title('Dual net losses', fontsize=10)
-	plt.xlabel('number of iterations', fontsize=10)
+	plt.xlabel('number of non-idling iterations', fontsize=10)
 	plt.ylabel('net1 loss', fontsize=10)
 	plt.grid(True)
 
@@ -95,8 +95,8 @@ if PLOT_DUAL and dual_path_exists:
 	plt.plot(x2, y2)
 	plt.yscale('linear')
 	if (not net2_auto_yscale):
-		plt.ylim(0.5,3.0)
-	plt.xlabel('number of iterations', fontsize=10)
+		plt.ylim(0.0,3.0)
+	plt.xlabel('number of non-idling iterations', fontsize=10)
 	plt.ylabel('net2 loss', fontsize=10)
 	plt.grid(True)
 
@@ -107,7 +107,7 @@ if PLOT_SINGLE and single_path_exists:
 	# Calculating the range of the function to plot, can be overwritten
 	n3 = non_zero_entries(y3)
 	if (net12_full_range):
-		n3 = no_seqs*(net1_seq_size+net2_seq_size)
+		n3 = no_seqs*net2_seq_size
 	x3 = range(n3)
 	y3 = y3[0:n3]
 
@@ -122,5 +122,6 @@ if PLOT_SINGLE and single_path_exists:
 	plt.ylabel('net12 loss', fontsize=10)
 	plt.grid(True)
 
+os.system('mkdir ../../images')
 plt.savefig('../../images/losses.png', fontsize=10)
 plt.close()

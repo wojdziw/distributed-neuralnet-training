@@ -39,8 +39,8 @@ A.~Ng.
 \newblock https://www.coursera.org/learn/machine-learning/.
 
 \bibitem{caffe2016loss}
-SOMEONE.
-\newblock Change me.
+E.~Shelhamer.
+\newblock Python euclidean loss custom layer.
 \newblock
   https://github.com/BVLC/caffe/blob/master/examples/pycaffe/layers/pyloss.py/
   [Accessed: 9/2/2017].
