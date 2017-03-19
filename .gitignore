@@ -17,4 +17,7 @@ Code/cifar10/models/snapshots/*
 Code/cifar10/snapshots/*
 *.DS_Store
 *.png
-
+Code/MNIST/input/*
+Code/MNIST/images/*
+Code/MNIST/comms/*
+Code/MNIST/snapshots/*
