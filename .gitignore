@@ -21,3 +21,9 @@ Code/MNIST/input/*
 Code/MNIST/images/*
 Code/MNIST/comms/*
 Code/MNIST/snapshots/*
+*.npy
+*.jpg
+Code/cifar100/input/*
+Code/cifar100/images/*
+Code/cifar100/comms/*
+Code/cifar100/snapshots/*

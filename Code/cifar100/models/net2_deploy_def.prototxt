@@ -1,37 +1,11 @@
 name: "CaffeNet"
+
 layer {
   name: "data2"
-  type: "MemoryData"
+  type: "Input"
   top: "data2"
-  top: "label"
-  include {
-    phase: TRAIN
-  }
-
-  memory_data_param {
-    batch_size: 1000
-    channels: 256
-    height: 8
-    width: 8
-  }
+  input_param { shape: { dim: 1 dim: 256 dim: 8 dim: 8 } }
 }
-layer {
-  name: "data2"
-  type: "MemoryData"
-  top: "data2"
-  top: "label"
-  include {
-    phase: TEST
-  }
-
-  memory_data_param {
-    batch_size: 50
-    channels: 256
-    height: 8
-    width: 8
-  }
-}
-
 
 layer {
   name: "conv3p"
@@ -173,7 +147,7 @@ layer {
     decay_mult: 0
   }
   inner_product_param {
-    num_output: 100
+    num_output: 10
     weight_filler {
       type: "gaussian"
       std: 0.01
@@ -186,9 +160,8 @@ layer {
 }
 
 layer {
-  name: "loss"
-  type: "SoftmaxWithLoss"
+  name: "prob"
+  type: "Softmax"
   bottom: "fc6"
-  bottom: "label"
-  top: "loss"
+  top: "prob"
 }

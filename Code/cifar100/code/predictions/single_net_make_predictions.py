@@ -17,7 +17,7 @@ test_img_labels = np.load("../../input/test/labels.npy")
 # Constants
 IMAGE_WIDTH = 32
 IMAGE_HEIGHT = 32
-ITERATION_NUMBER = 8000
+ITERATION_NUMBER = 1500
 NO_SAMPLES = len(test_img_paths)
 
 def transform_img(img, img_width, img_height):
@@ -30,20 +30,13 @@ def transform_img(img, img_width, img_height):
     return img
 
 # Read model architecture and trained model's weights
-net1 = caffe.Net('../../models/net1_deploy_def.prototxt',
-                '../../snapshots/net1_iter_'+str(ITERATION_NUMBER)+'.caffemodel',
-                caffe.TEST)
-
-net2 = caffe.Net('../../models/net2_deploy_def.prototxt',
-                '../../snapshots/net2_iter_'+str(ITERATION_NUMBER)+'.caffemodel',
+net = caffe.Net('../../models/net12_deploy_def.prototxt',
+                '../../snapshots/net12_iter_'+str(ITERATION_NUMBER)+'.caffemodel',
                 caffe.TEST)
 
 # Define image transformers
-transformer1 = caffe.io.Transformer({'data': net1.blobs['data'].data.shape})
-transformer1.set_transpose('data', (2,0,1))
-
-transformer2 = caffe.io.Transformer({'data2': net2.blobs['data2'].data.shape})
-transformer2.set_transpose('data2', (2,0,1))
+transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
+transformer.set_transpose('data', (2,0,1))
 
 
 
@@ -60,27 +53,15 @@ for i in range(NO_SAMPLES):
     img = transform_img(img, IMAGE_WIDTH, IMAGE_HEIGHT)
 
     # Preprocessing the image to feed it into the model
-    net1.blobs['data'].data[...] = transformer1.preprocess('data', img)
+    net.blobs['data'].data[...] = transformer.preprocess('data', img)
 
-    # Running the forward prop on net1 and retrieving the output of pool2
-    out = net1.forward()
-    data_pool2 = net1.blobs['pool2'].data[0]
-
-    # Preparing the data to be fed into net2
-    processedImage =  np.zeros([8,8,256])
-    for j in range(256):
-        processedImage[:,:,j] = data_pool2[j,:,:]
-
-    # Preprocessing the data fed into net2
-    net2.blobs['data2'].data[...] = transformer2.preprocess('data2', processedImage)
-
-    # Running the forward prop on net2 and retrieving the class probabilities
-    out = net2.forward()
-    pred_probas = net2.forward()['prob']
+    # Running the forward prop and retrieving the class probabilities
+    out = net.forward()
+    pred_probas = out['prob']
 
     # Checking for correctness
-    img_number = img_path.split("/")[-1].split(".")[0]
-    if pred_probas.argmax() == test_img_labels[int(img_number)]:
+    img_number = img_path.split("img")[1].split(".")[0]
+    if pred_probas.argmax() == test_img_labels[int(img_number)][0]:
         noCorrect += 1
 
 # Calculating the accuracy

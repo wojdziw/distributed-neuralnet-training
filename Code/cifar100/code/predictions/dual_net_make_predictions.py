@@ -17,7 +17,7 @@ test_img_labels = np.load("../../input/test/labels.npy")
 # Constants
 IMAGE_WIDTH = 32
 IMAGE_HEIGHT = 32
-ITERATION_NUMBER = 8000
+ITERATION_NUMBER = 2000
 NO_SAMPLES = len(test_img_paths)
 
 def transform_img(img, img_width, img_height):
@@ -79,8 +79,8 @@ for i in range(NO_SAMPLES):
     pred_probas = net2.forward()['prob']
 
     # Checking for correctness
-    img_number = img_path.split("/")[-1].split(".")[0]
-    if pred_probas.argmax() == test_img_labels[int(img_number)]:
+    img_number = img_path.split("img")[1].split(".")[0]
+    if pred_probas.argmax() == test_img_labels[int(img_number)][0]:
         noCorrect += 1
 
 # Calculating the accuracy
