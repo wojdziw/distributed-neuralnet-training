@@ -1,20 +1,20 @@
 \contentsline {figure}{\numberline {2.1}{\ignorespaces {A logistic unit}\relax }}{3}
-\contentsline {figure}{\numberline {2.2}{\ignorespaces {A simple neural net}\relax }}{4}
+\contentsline {figure}{\numberline {2.2}{\ignorespaces {A simple neural net}\relax }}{5}
 \contentsline {figure}{\numberline {2.3}{\ignorespaces {We follow the function in the negative gradient direction.}\relax }}{7}
-\contentsline {figure}{\numberline {2.4}{\ignorespaces {The input volume in red is transformed into a set of 5 activation layers using 5 convolutional filters.}\relax }}{9}
-\contentsline {figure}{\numberline {4.1}{\ignorespaces Example model architecture in DistBelief \cite {dean2012large}\relax }}{11}
-\contentsline {figure}{\numberline {6.1}{\ignorespaces {The single network architecture used as a baseline.}\relax }}{16}
-\contentsline {figure}{\numberline {6.2}{\ignorespaces {Breaking down the network between the machines}\relax }}{18}
-\contentsline {figure}{\numberline {7.1}{\ignorespaces {The single network architecture used as a baseline.}\relax }}{18}
-\contentsline {figure}{\numberline {7.2}{\ignorespaces {The dual networks imitating the single one.}\relax }}{19}
-\contentsline {figure}{\numberline {7.3}{\ignorespaces {The Caffe net1 print.}\relax }}{19}
-\contentsline {figure}{\numberline {7.4}{\ignorespaces {The Caffe net2 print.}\relax }}{20}
-\contentsline {figure}{\numberline {8.1}{\ignorespaces {The algorithm used for dual network training.}\relax }}{24}
-\contentsline {figure}{\numberline {9.1}{\ignorespaces {The training losses for the prototype framework.}\relax }}{29}
-\contentsline {figure}{\numberline {9.2}{\ignorespaces {The losses for both of the networks during the first iteration of training using a custom Euclidean loss layer.}\relax }}{31}
-\contentsline {figure}{\numberline {9.3}{\ignorespaces {The training losses with the "default" custom layer in place.}\relax }}{33}
-\contentsline {figure}{\numberline {9.4}{\ignorespaces {The modified version of the training algorithm. Networks 1 and 2 converge separately, with one training and the other idling at one chosen time.}\relax }}{36}
-\contentsline {figure}{\numberline {9.5}{\ignorespaces {An illustration of the learning rate variation. The function on the left exhibits slow, yet optimal convergence. In the middle the convergence is much faster, but virtually non-existent because the algorithm misses the optimal point. The best of both worlds is presented in the rightmost figure. The learning rate is adaptive, and slows down when minimum is approached.}\relax }}{38}
-\contentsline {figure}{\numberline {10.1}{\ignorespaces {The characteristic "step" pattern exhibited by the neural network. During one sequence, each of the nets optimizes its loss function and then hands the training over to the net that was idling before.}\relax }}{45}
-\contentsline {figure}{\numberline {10.2}{\ignorespaces {The final loss convergence pattern for the single and dual network architectures. The step pattern for the training of the dual network is clear and visible, although the convergence trend is very pronounced and dominating over the idling periods.}\relax }}{45}
-\contentsline {figure}{\numberline {10.3}{\ignorespaces {The final loss convergence pattern for the single and dual network architectures. The step pattern is now removed and only the non-idling iterations' losses are shown.}\relax }}{46}
+\contentsline {figure}{\numberline {2.4}{\ignorespaces {The input volume in red is transformed into a set of 5 activation layers using 5 convolutional filters. \cite {stanford2016convnets}}\relax }}{10}
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Example model architecture in DistBelief \cite {dean2012large}\relax }}{12}
+\contentsline {figure}{\numberline {5.1}{\ignorespaces {The single network architecture used as a baseline.}\relax }}{17}
+\contentsline {figure}{\numberline {5.2}{\ignorespaces {Breaking down the network between the machines}\relax }}{18}
+\contentsline {figure}{\numberline {6.1}{\ignorespaces {The single network architecture used as a baseline.}\relax }}{19}
+\contentsline {figure}{\numberline {6.2}{\ignorespaces {The dual networks imitating the single one.}\relax }}{19}
+\contentsline {figure}{\numberline {6.3}{\ignorespaces {The Caffe net1 print.}\relax }}{20}
+\contentsline {figure}{\numberline {6.4}{\ignorespaces {The Caffe net2 print.}\relax }}{20}
+\contentsline {figure}{\numberline {7.1}{\ignorespaces {The algorithm used for dual network training.}\relax }}{24}
+\contentsline {figure}{\numberline {8.1}{\ignorespaces {The training losses for the prototype framework.}\relax }}{29}
+\contentsline {figure}{\numberline {8.2}{\ignorespaces {The losses for both of the networks during the first iteration of training using a custom Euclidean loss layer.}\relax }}{31}
+\contentsline {figure}{\numberline {8.3}{\ignorespaces {The training losses with the "default" custom layer in place.}\relax }}{33}
+\contentsline {figure}{\numberline {8.4}{\ignorespaces {The modified version of the training algorithm. Networks 1 and 2 converge separately, with one training and the other idling at one chosen time.}\relax }}{36}
+\contentsline {figure}{\numberline {8.5}{\ignorespaces {An illustration of the learning rate variation. The function on the left exhibits slow, yet optimal convergence. In the middle the convergence is much faster, but virtually non-existent because the algorithm misses the optimal point. The best of both worlds is presented in the rightmost figure. The learning rate is adaptive, and slows down when minimum is approached.}\relax }}{39}
+\contentsline {figure}{\numberline {9.1}{\ignorespaces {The characteristic "step" pattern exhibited by the neural network. During one sequence, either of the nets optimizes its loss function and then hands the training over to the net that was idling before.}\relax }}{45}
+\contentsline {figure}{\numberline {9.2}{\ignorespaces {The final loss convergence pattern for the single and dual network architectures. The step pattern for the training of the dual network is clear and visible, although the convergence trend is very pronounced and dominating over the idling periods.}\relax }}{46}
+\contentsline {figure}{\numberline {9.3}{\ignorespaces {The final loss convergence pattern for the single and dual network architectures. The step pattern is now removed and only the non-idling iterations' losses are shown.}\relax }}{46}

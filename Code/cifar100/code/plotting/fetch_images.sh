@@ -1,1 +1,4 @@
-scp fyp:~/Final-Year-Project/Code/cifar10/images/*.png ../../images
+export GRANDPARENTNAME="$(dirname "$(dirname $PWD)")"
+export NAME="${GRANDPARENTNAME##*/}"
+mkdir ../../images
+scp fyp:~/Final-Year-Project/Code/$NAME/images/*.png ../../images

@@ -5,18 +5,18 @@ import os.path
 
 # User decision which plots to include
 PLOT_DUAL = True
-PLOT_SINGLE = True
+PLOT_SINGLE = False
 
 net1_auto_yscale = True
-net2_auto_yscale = False
+net2_auto_yscale = True
 net12_auto_yscale = True
 
-net1_full_range = True
-net2_full_range = True
-net12_full_range = True
+net1_full_range = False
+net2_full_range = False
+net12_full_range = False
 
-net1_without_steps = True
-net2_without_steps = True
+net1_without_steps = False
+net2_without_steps = False
 
 net1_seq_size = 50
 net2_seq_size = 150

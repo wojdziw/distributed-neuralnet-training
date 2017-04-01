@@ -2,45 +2,45 @@
 
 \bibitem{chilimbi2014project}
 T.~Chilimbi, Y.~Suzue, J.~Apacible, and K.~Kalyanaraman.
-\newblock Project adam: Building an efficient and scalable deep learning
-  training system.
+\newblock "{Project Adam: Building an efficient and scalable deep learning
+  training system}".
 \newblock In {\em 11th USENIX Symposium on Operating Systems Design and
   Implementation (OSDI 14)}, pages 571--582, 2014.
 
 \bibitem{ciresan2010deep}
 D.~C. Ciresan, U.~Meier, L.~M. Gambardella, and J.~Schmidhuber.
-\newblock Deep, big, simple neural nets for handwritten digit recognition.
+\newblock "{Deep, big, simple neural nets for handwritten digit recognition}".
 \newblock {\em Neural computation}, 22(12):3207--3220, 2010.
 
 \bibitem{dean2012large}
 J.~Dean, G.~Corrado, R.~Monga, K.~Chen, M.~Devin, M.~Mao, A.~Senior, P.~Tucker,
   K.~Yang, Q.~V. Le, et~al.
-\newblock Large scale distributed deep networks.
+\newblock "{Large scale distributed deep networks}".
 \newblock In {\em Advances in neural information processing systems}, pages
   1223--1231, 2012.
 
 \bibitem{kruger2013deep}
 N.~Kruger, P.~Janssen, S.~Kalkan, M.~Lappe, A.~Leonardis, J.~Piater, A.~J.
   Rodriguez-Sanchez, and L.~Wiskott.
-\newblock Deep hierarchies in the primate visual cortex: What can we learn for
-  computer vision?
+\newblock "{Deep hierarchies in the primate visual cortex: What can we learn
+  for computer vision?}".
 \newblock {\em IEEE transactions on pattern analysis and machine intelligence},
   35(8):1847--1871, 2013.
 
 \bibitem{stanford2016convnets}
 F.-F. Li, A.~Karpathy, and J.~Johnson.
-\newblock Cs231n convolutional neural networks for visual recognition.
+\newblock "{CS231n Convolutional Neural Networks for Visual Recognition}".
 \newblock http://cs231n.github.io/convolutional-networks/ [Accessed:
   23/9/2016].
 
 \bibitem{ng2015coursera}
 A.~Ng.
-\newblock Coursera: Machine learning.
+\newblock "{Coursera: Machine Learning}".
 \newblock https://www.coursera.org/learn/machine-learning/.
 
 \bibitem{caffe2016loss}
 E.~Shelhamer.
-\newblock Python euclidean loss custom layer.
+\newblock "{Python Euclidean Loss custom layer}".
 \newblock
   https://github.com/BVLC/caffe/blob/master/examples/pycaffe/layers/pyloss.py/
   [Accessed: 9/2/2017].
